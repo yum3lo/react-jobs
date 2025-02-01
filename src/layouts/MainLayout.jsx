@@ -3,10 +3,10 @@ import Navbar from "../components/Navbar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const MainLayout = () => {
+const MainLayout = ({ isLoggedIn, setIsLoggedIn }) => {
   return (
     <>
-      <Navbar />
+      <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
       <Outlet />
       <ToastContainer />
     </>

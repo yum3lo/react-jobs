@@ -1,11 +1,20 @@
-import logo from "../assets/images/logo.png";
+import logo from "../assets/images/logo.svg";
 import { NavLink } from "react-router-dom";
+import { FaRightFromBracket } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
   const linkClass = ({ isActive }) =>
     isActive
-      ? "text-white bg-black hover:bg-gray-900 rounded-md px-3 py-2"
-      : "text-white hover:bg-gray-900 rounded-md px-3 py-2";
+      ? "text-white bg-black hover:bg-indigo-300 rounded-md px-3 py-2"
+      : "text-white hover:bg-indigo-300 rounded-md px-3 py-2";
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate('/');
+  }
 
   return (
     <nav className="bg-indigo-900">
@@ -26,9 +35,25 @@ const Navbar = () => {
                 <NavLink to="/jobs" className={linkClass}>
                   Jobs
                 </NavLink>
-                <NavLink to="/add-job" className={linkClass}>
-                  Add Job
-                </NavLink>
+                {isLoggedIn ? (
+                  <>
+                    <NavLink to="/add-job" className={linkClass}>
+                      Add Job
+                    </NavLink>
+                    <div className="flex justify-center items-center">
+                      <NavLink
+                        onClick={handleLogout} 
+                        className="bg-orange-500 hover:bg-orange-600 rounded-md px-3 py-2"
+                      >
+                        <FaRightFromBracket className="text-white"/>
+                      </NavLink>
+                    </div>
+                  </> 
+                ) : (
+                  <NavLink to="/register" className={linkClass}>
+                    Register
+                  </NavLink>
+                )}
               </div>
             </div>
           </div>

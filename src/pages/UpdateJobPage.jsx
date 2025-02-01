@@ -1,6 +1,7 @@
 import { useParams, useLoaderData, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { toast } from "react-toastify"
+import { FaStarOfLife } from "react-icons/fa"
 
 const EditJobPage = ({ updateJobSubmit }) => {
   const job = useLoaderData();
@@ -51,6 +52,7 @@ const EditJobPage = ({ updateJobSubmit }) => {
               <div className="mb-4">
                 <label htmlFor="type" className="block text-gray-700 font-bold mb-2">
                   Job Type
+                  <FaStarOfLife className="text-red-500 inline-block w-2 ml-1 mt-[-10px]" />
                 </label>
                 <select
                   id="type"
@@ -69,14 +71,15 @@ const EditJobPage = ({ updateJobSubmit }) => {
 
               <div className="mb-4">
                 <label className="block text-gray-700 font-bold mb-2">
-                  Job Listing Name
+                  Job Listing Name 
+                  <FaStarOfLife className="text-red-500 inline-block w-2 ml-1 mt-[-10px]" />
                 </label>
                 <input
                   type="text"
                   id="title"
                   name="title"
                   className="border rounded w-full py-2 px-3 mb-2"
-                  placeholder="eg. Beautiful Apartment In Miami"
+                  placeholder="eg. Junior React Developer"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -103,6 +106,7 @@ const EditJobPage = ({ updateJobSubmit }) => {
               <div className="mb-4">
                 <label htmlFor="type" className="block text-gray-700 font-bold mb-2">
                   Salary
+                  <FaStarOfLife className="text-red-500 inline-block w-2 ml-1 mt-[-10px]" />
                 </label>
                 <select
                   id="salary"
@@ -129,6 +133,7 @@ const EditJobPage = ({ updateJobSubmit }) => {
               <div className='mb-4'>
                 <label className='block text-gray-700 font-bold mb-2'>
                   Location
+                  <FaStarOfLife className="text-red-500 inline-block w-2 ml-1 mt-[-10px]" />
                 </label>
                 <input
                   type='text'
@@ -183,6 +188,7 @@ const EditJobPage = ({ updateJobSubmit }) => {
                   className="block text-gray-700 font-bold mb-2"
                 >
                   Contact Email
+                  <FaStarOfLife className="text-red-500 inline-block w-2 ml-1 mt-[-10px]" />
                 </label>
                 <input
                   type="email"
