@@ -15,6 +15,7 @@ import JobPage, {jobLoader} from "./pages/JobPage";
 import AddJobPage from "./pages/AddJobPage";
 import UpdateJobPage from "./pages/UpdateJobPage";
 import RegisterPage from './pages/RegisterPage';
+import LoginPage from './pages/LoginPage';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -58,6 +59,7 @@ const App = () => {
         <Route path="/jobs/:id/edit" element={<UpdateJobPage updateJobSubmit={updateJob}  />} loader={jobLoader}/>
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/register" element={<RegisterPage setIsLoggedIn={setIsLoggedIn}/>} />
+        <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn}/>} />
       </Route>
     )
   );
