@@ -18,24 +18,6 @@ const LoginPage = ({ setIsLoggedIn }) => {
   const [validPwd, setValidPwd] = useState(false);
   const [pwdFocus, setPwdFocus] = useState(false);
 
-  // You can add this temporarily in your LoginPage.jsx to test
-  useEffect(() => {
-    const testServer = async () => {
-      try {
-        const response = await axios.get('/test');
-        console.log('Server test response:', response.data);
-      } catch (err) {
-        console.error('Server test error:', err);
-      }
-    };
-    
-    testServer();
-  }, []);
-
-  useEffect(() => {
-    userRef.current.focus();
-  }, []);
-
   useEffect(() => {
     setValidName(user.length > 0);
     setValidPwd(pwd.length > 0);

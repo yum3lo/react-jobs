@@ -20,12 +20,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Add this at the top of your routes
-app.get('/test', (req, res) => {
-  console.log('Test endpoint hit!');
-  res.json({ message: 'Server is working!' });
-});
-
 app.post('/register', async (req, res) => {
   const { user, pwd } = req.body;
   
