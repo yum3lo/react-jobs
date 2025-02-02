@@ -1,7 +1,6 @@
 import logo from "../assets/images/logo.svg";
 import { NavLink } from "react-router-dom";
 import { FaRightFromBracket } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
 
 const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
   const linkClass = ({ isActive }) =>
@@ -9,11 +8,9 @@ const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
       ? "text-white bg-black hover:bg-indigo-300 rounded-md px-3 py-2"
       : "text-white hover:bg-indigo-300 rounded-md px-3 py-2";
 
-  const navigate = useNavigate();
-
   const handleLogout = () => {
     setIsLoggedIn(false);
-    navigate('/');
+    window.location.reload();
   }
 
   return (
@@ -50,9 +47,14 @@ const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
                     </div>
                   </> 
                 ) : (
-                  <NavLink to="/register" className={linkClass}>
-                    Register
-                  </NavLink>
+                  <>
+                    <NavLink to="/register" className={linkClass}>
+                      Register
+                    </NavLink>
+                    <NavLink to="/login" className={linkClass}>
+                      Login
+                    </NavLink>
+                  </>
                 )}
               </div>
             </div>
