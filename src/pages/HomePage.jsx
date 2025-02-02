@@ -3,11 +3,11 @@ import HomeCards from "../components/HomeCards";
 import JobListings from "../components/JobListings";
 import ViewAllJobs from "../components/ViewAllJobs";
 
-const HomePage = () => {
+const HomePage = ({ isLoggedIn }) => {
   return (
     <>
       <Hero />
-      <HomeCards />
+      <HomeCards isLoggedIn={isLoggedIn}/>
       <JobListings isHome={true} />
       <ViewAllJobs />
     </>

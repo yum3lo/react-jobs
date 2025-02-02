@@ -1,7 +1,7 @@
 import Card from "./Card";
 import { Link } from "react-router-dom";
 
-const HomeCards = () => {
+const HomeCards = ({ isLoggedIn }) => {
   return (
     <section className="py-8">
       <div className="container-xl lg:container m-auto">
@@ -28,7 +28,7 @@ const HomeCards = () => {
               List your job to find the perfect developer for the role
             </p>
             <Link
-              to="/add-job"
+              to={isLoggedIn ? "/add-job" : "/login"}
               className="inline-block bg-indigo-700 text-white rounded-lg px-4 py-2 hover:bg-indigo-900"
             >
               Add Job

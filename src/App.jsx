@@ -52,10 +52,10 @@ const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<MainLayout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>}>
-        <Route index element={<HomePage />} />
+        <Route index element={<HomePage isLoggedIn={isLoggedIn}/>} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/add-job" element={<AddJobPage addJobSubmit={addJob} />} />
-        <Route path="/jobs/:id" element={<JobPage deleteJob={ deleteJob } />}  loader={jobLoader}/>
+        <Route path="/jobs/:id" element={<JobPage isLoggedIn={isLoggedIn} deleteJob={ deleteJob } />}  loader={jobLoader}/>
         <Route path="/jobs/:id/edit" element={<UpdateJobPage updateJobSubmit={updateJob}  />} loader={jobLoader}/>
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/register" element={<RegisterPage setIsLoggedIn={setIsLoggedIn}/>} />
