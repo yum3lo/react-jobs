@@ -6,15 +6,15 @@ React Jobs is a web application that allows users to browse job listings. Once s
 
 ## Features
 
-- **Browse Job Listings**: View a list of available jobs with details like title, location, salary, and company information.
-- **User Authentication**:
+- **Browse Job Listings**
+- **User Authentication**
   - Sign up for a new account.
   - Log in to an existing account.
-- **Manage Job Postings** (for logged-in users):
+- **Manage Job Postings** (for logged-in users)
   - Add a new job posting.
   - Edit existing job postings.
   - Delete job postings.
-- **Responsive Design**: The application is fully responsive and works on all devices.
+- **Responsive Design**
 
 ---
 
