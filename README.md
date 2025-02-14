@@ -43,15 +43,68 @@ React Jobs is a web application that allows users to browse job listings. Once s
 
 ---
 
-## Screenshots
+## Prerequisites
 
-### Home Page
-![image](https://github.com/user-attachments/assets/70d40d76-8d83-4919-b9e6-5c6887ce58c2)
-![image](https://github.com/user-attachments/assets/4229f77a-b000-4619-82aa-8b520046dc3a)
+Before running the application, make sure you have:
+- Node.js installed (v14 or higher)
+- PostgreSQL installed and running
+- npm or yarn package manager
 
-### Job Details Page
-![image](https://github.com/user-attachments/assets/9efc9808-26b8-4ba1-81d6-c4730d339a67)
+---
 
-### Add Job Page
-![image](https://github.com/user-attachments/assets/da1abd9c-e477-4f12-a181-08bb73b055db)
-![image](https://github.com/user-attachments/assets/60b21891-415a-495b-a1dc-70378758f385)
+## Installation and Setup
+
+1. Clone the repository:
+```sh
+git clone https://github.com/yourusername/react-jobs.git
+cd react-jobs
+```
+2. Install dependencies for both frontend and backend:
+```sh
+cd client
+npm install
+
+cd ../server
+npm install
+```
+3. Set up the PostgreSQL database:
+a. Create a new PostgreSQL database:
+```sql
+CREATE DATABASE react_jobs;
+```
+
+```sql
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+4. Edit the `.env` file with your PostgreSQL credentials and desired configuration:
+```env
+DB_USER=your_username
+DB_PASSWORD=your_password
+```
+6. Start the application:
+   a.  Start the backend server (from the server directory)
+  ```sh
+  npm start
+  ```
+  b. In a new terminal, start the frontend (from the client directory)
+  ```sh
+  npm run dev
+  ```
+The frontend will be available at http://localhost:3000 and the backend at http://localhost:3500.
+
+### Port Configuration
+
+- Frontend: Running on port 3000
+- Backend: Running on port 3500
+- PostgreSQL: Running on port 5432
+
+Make sure these ports are available on your system. If you need to use different ports, update the corresponding configuration in:
+
+- Frontend: `vite.config.js` and axios base URL
+- Backend: `.env` file
+- Database: PostgreSQL configuration and backend connection settings
