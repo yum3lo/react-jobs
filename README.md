@@ -1,8 +1,57 @@
-# React + Vite
+# React Jobs
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React Jobs is a web application that allows users to browse job listings. Once signed up or logged in, users can add, edit, or delete job postings. The project is built with a React frontend and a Node.js/Express backend, with a PostgreSQL database for storing job and user data.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+
+- **Browse Job Listings**
+- **User Authentication**
+  - Sign up for a new account.
+  - Log in to an existing account.
+- **Manage Job Postings** (for logged-in users)
+  - Add a new job posting.
+  - Edit existing job postings.
+  - Delete job postings.
+- **Responsive Design**
+
+---
+
+## Technologies Used
+
+### Frontend
+- **React**: A JavaScript library for building user interfaces.
+- **React Router**: For handling client-side routing.
+- **Tailwind CSS**: A utility-first CSS framework for styling.
+- **Axios**: For making HTTP requests to the backend.
+- **React Icons**: For using icons like FaArrowLeft, FaMapMarker, etc.
+- **React Toastify**: For displaying toast notifications.
+
+### Backend
+- **Node.js**: A JavaScript runtime for building the backend.
+- **Express**: A web framework for Node.js.
+- **PostgreSQL**: A relational database for storing job and user data.
+- **pg**: A PostgreSQL client for Node.js.
+- **bcrypt**: For hashing passwords.
+- **CORS**: For enabling cross-origin resource sharing.
+
+### Development Tools
+- **Vite**: A fast build tool for modern web applications.
+- **Insomnia**: For testing API endpoints.
+- **Git**: For version control.
+
+---
+
+## Screenshots
+
+### Home Page
+![image](https://github.com/user-attachments/assets/70d40d76-8d83-4919-b9e6-5c6887ce58c2)
+![image](https://github.com/user-attachments/assets/4229f77a-b000-4619-82aa-8b520046dc3a)
+
+### Job Details Page
+![image](https://github.com/user-attachments/assets/9efc9808-26b8-4ba1-81d6-c4730d339a67)
+
+### Add Job Page
+![image](https://github.com/user-attachments/assets/da1abd9c-e477-4f12-a181-08bb73b055db)
+![image](https://github.com/user-attachments/assets/60b21891-415a-495b-a1dc-70378758f385)
