@@ -1,9 +1,9 @@
 import { useParams, useLoaderData, useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "react-toastify"
 import { FaStarOfLife } from "react-icons/fa"
 
-const EditJobPage = ({ updateJobSubmit }) => {
+const EditJobPage = ({ updateJobSubmit, isLoggedIn }) => {
   const job = useLoaderData();
   const [title, setTitle] = useState(job.title)
   const [type, setType] = useState(job.type)
@@ -38,6 +38,12 @@ const EditJobPage = ({ updateJobSubmit }) => {
     toast.success('Job updated successfully!')
     return navigate(`/jobs/${id}`)
   }
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/login')
+    }
+  }, [isLoggedIn, navigate])
 
   return (
     <>
