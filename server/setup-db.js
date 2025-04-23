@@ -18,21 +18,23 @@ async function setupDatabase() {
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         username VARCHAR(50) UNIQUE NOT NULL,
-        password VARCHAR(100) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        password VARCHAR(100) NOT NULL
       );
     `);
     console.log('Created users table');
 
     await client.query(`
       CREATE TABLE IF NOT EXISTS jobs (
-        id VARCHAR(10) PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         title VARCHAR(100) NOT NULL,
         type VARCHAR(50),
         description TEXT,
         location VARCHAR(100),
         salary VARCHAR(50),
-        posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        company_name VARCHAR(100),
+        company_description TEXT,
+        company_contact_email VARCHAR(100),
+        company_contact_phone VARCHAR(20)
       );
     `);
     console.log('Created jobs table');

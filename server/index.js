@@ -82,7 +82,7 @@ app.post('/login', async (req, res) => {
 app.get('/jobs', async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT * FROM jobs ORDER BY posted_at DESC
+      SELECT * FROM jobs ORDER BY id ASC
     `);
     
     const formattedJobs = result.rows.map(job => ({
@@ -141,17 +141,25 @@ app.get('/jobs/:id', async (req, res) => {
 
 app.post('/jobs', async (req, res) => {
   try {
-    const { title, type, description, location, salary, company } = req.body;
+    const { 
+      title, 
+      type, 
+      description, 
+      location, 
+      salary, 
+      company 
+    } = req.body;
+
+    const id = Date.now().toString(36);
     
     const result = await pool.query(
       `INSERT INTO jobs (
-        id, title, type, description, location, salary,
+        title, type, description, location, salary,
         company_name, company_description, company_contact_email, company_contact_phone
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+        $1, $2, $3, $4, $5, $6, $7, $8, $9
       ) RETURNING *`,
       [
-        Date.now().toString(36), // Simple ID generation
         title,
         type,
         description,
@@ -176,8 +184,8 @@ app.post('/jobs', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to create job' });
+    console.error('Error creating job:', err);
+    res.status(500).json({ error: 'Failed to create job', details: err.message });
   }
 });
 
