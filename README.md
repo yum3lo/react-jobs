@@ -61,11 +61,11 @@ cd react-jobs
 ```
 2. Install dependencies for both frontend and backend:
 ```sh
-cd client
-npm install
+cd .\src
+npm i
 
-cd ../server
-npm install
+cd .\server
+npm i
 ```
 3. Set up the PostgreSQL database:
 a. Create a new PostgreSQL database:
@@ -91,7 +91,7 @@ DB_PASSWORD=your_password
   ```sh
   npm start
   ```
-  b. In a new terminal, start the frontend (from the client directory)
+  b. In a new terminal, start the frontend (from the src directory)
   ```sh
   npm run dev
   ```
