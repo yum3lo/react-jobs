@@ -3,10 +3,6 @@ import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaInfoCircle } from "react-icons/fa";
 
-import axios from '../api/axios'
-
-const LOGIN_URL = '/login'
-
 const LoginPage = ({ setIsLoggedIn }) => {
   const userRef = useRef();
 
@@ -34,26 +30,27 @@ const LoginPage = ({ setIsLoggedIn }) => {
     }
     
     try {
-      // sending login request to server
-      const response = await axios.post(
-        LOGIN_URL, 
-        JSON.stringify({user, pwd}),
-        { 
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
-        }
-      )
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ user, pwd })
+      })
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+      
       setIsLoggedIn(true);
       toast.success('Login successful!');
       navigate('/');
     } catch (err) {
-      if (!err?.response) {
-        toast.error('No server response');
-      } else if (err.response?.status === 401) {
-        toast.error('Invalid username or password');
-      } else {
-        toast.error('Login failed');
-      }
+      toast.error(err.message || 'Login failed!');
+      console.error(err);
     }
   }
 

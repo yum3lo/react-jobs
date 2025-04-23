@@ -28,14 +28,14 @@ const App = () => {
       },
       body: JSON.stringify(newJob)
     })
-    return;
+    return res.json();
   }
 
   const deleteJob = async (id) => {
     const res = await fetch(`/api/jobs/${id}`, {
       method: 'DELETE'
     })
-    return;
+    return res.json();
   }
 
   const updateJob = async (job) => {
@@ -46,7 +46,7 @@ const App = () => {
       },
       body: JSON.stringify(job)
     })
-    return
+    return res.json();
   }
   
   const router = createBrowserRouter(

@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react'
 import { FaStarOfLife } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import NotFoundPage from './NotFoundPage'
-import { use } from 'react'
 
 const AddJobPage = ({ addJobSubmit, isLoggedIn }) => {
   const [title, setTitle] = useState('')
@@ -12,9 +10,9 @@ const AddJobPage = ({ addJobSubmit, isLoggedIn }) => {
   const [description, setDescription] = useState('')
   const [salary, setSalary] = useState('Under $50K')
   const [companyName, setCompanyName] = useState('')
-  const [companyDescription, setcompanyDescription] = useState('')
-  const [contactEmail, setcontactEmail] = useState('')
-  const [contactPhone, setcontactPhone] = useState('')
+  const [companyDescription, setCompanyDescription] = useState('')
+  const [contactEmail, setContactEmail] = useState('')
+  const [contactPhone, setContactPhone] = useState('')
 
   const navigate = useNavigate()
 
@@ -183,7 +181,7 @@ const AddJobPage = ({ addJobSubmit, isLoggedIn }) => {
                   rows="4"
                   placeholder="What does your company do?"
                   value={companyDescription}
-                  onChange={(e) => setcompanyDescription(e.target.value)}
+                  onChange={(e) => setCompanyDescription(e.target.value)}
                 ></textarea>
               </div>
 
@@ -203,7 +201,7 @@ const AddJobPage = ({ addJobSubmit, isLoggedIn }) => {
                   placeholder="Email address for applicants"
                   required
                   value={contactEmail}
-                  onChange={(e) => setcontactEmail(e.target.value)}
+                  onChange={(e) => setContactEmail(e.target.value)}
                 />
               </div>
               <div className="mb-4">
@@ -220,7 +218,7 @@ const AddJobPage = ({ addJobSubmit, isLoggedIn }) => {
                   className="border rounded w-full py-2 px-3"
                   placeholder="Optional phone for applicants"
                   value={contactPhone}
-                  onChange={(e) => setcontactPhone(e.target.value)}
+                  onChange={(e) => setContactPhone(e.target.value)}
                 />
               </div>
 

@@ -3,11 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaInfoCircle } from "react-icons/fa";
 
-import axios from '../api/axios'
-
 const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/
-const REGISTER_URL = '/register'
 
 const RegisterPage = ({ setIsLoggedIn }) => {
   const userRef = useRef();
@@ -57,20 +54,27 @@ const RegisterPage = ({ setIsLoggedIn }) => {
     }
     
     try {
-      const response = await axios.post(
-        REGISTER_URL, 
-        JSON.stringify({user, pwd}),
-        { 
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
-        }
-      )
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ user, pwd })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || response.status);
+      }
+
+      const data = await response.json();
       setIsLoggedIn(true);
       toast.success('Registration successful!');
       navigate('/');
     } catch (err) {
-      if (!err?.response) {
-        toast.error('No server response');
+      if (err.message === 'Network Error') {
+        toast.error('Network error, please try again later');
       } else if (err.response?.status === 409) {
         toast.error('Username already exists');
       } else {

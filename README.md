@@ -24,7 +24,7 @@ React Jobs is a web application that allows users to browse job listings. Once s
 - **React**: A JavaScript library for building user interfaces.
 - **React Router**: For handling client-side routing.
 - **Tailwind CSS**: A utility-first CSS framework for styling.
-- **Axios**: For making HTTP requests to the backend.
+- **fetch**: For making HTTP requests to the backend.
 - **React Icons**: For using icons like FaArrowLeft, FaMapMarker, etc.
 - **React Toastify**: For displaying toast notifications.
 
@@ -43,15 +43,57 @@ React Jobs is a web application that allows users to browse job listings. Once s
 
 ---
 
-## Screenshots
+## Prerequisites
 
-### Home Page
-![image](https://github.com/user-attachments/assets/70d40d76-8d83-4919-b9e6-5c6887ce58c2)
-![image](https://github.com/user-attachments/assets/4229f77a-b000-4619-82aa-8b520046dc3a)
+Before running the application, make sure you have:
+- Node.js installed (v14 or higher)
+- PostgreSQL installed and running
+- npm or yarn package manager
 
-### Job Details Page
-![image](https://github.com/user-attachments/assets/9efc9808-26b8-4ba1-81d6-c4730d339a67)
+---
 
-### Add Job Page
-![image](https://github.com/user-attachments/assets/da1abd9c-e477-4f12-a181-08bb73b055db)
-![image](https://github.com/user-attachments/assets/60b21891-415a-495b-a1dc-70378758f385)
+## Installation and Setup
+
+1. Clone the repository:
+```sh
+git clone https://github.com/yourusername/react-jobs.git
+cd react-jobs
+```
+2. Install dependencies for both frontend and backend:
+```sh
+cd src
+npm i
+
+cd server
+npm i
+```
+3. Edit the `.env` file with your PostgreSQL credentials and desired configuration:
+```env
+DB_USER=your_username
+DB_PASSWORD=your_password
+```
+4. Set up the PostgreSQL database (from the server directory):
+  a. First create the database (if it doesn't exist)
+  ```sh
+  createdb react_jobs
+  ```
+  b. Then run the setup script
+  ```sh
+  npm run setup-db
+  ```
+5. Start the application:
+  a.  Start the backend server (from the server directory)
+  ```sh
+  npm start
+  ```
+  b. In a new terminal, start the frontend (from the src directory)
+  ```sh
+  npm run dev
+  ```
+The frontend will be available at http://localhost:3000 and the backend at http://localhost:3500.
+
+### Port Configuration
+
+- Frontend: Running on port 3000
+- Backend: Running on port 3500
+- PostgreSQL: Running on port 5432

@@ -11,9 +11,9 @@ const EditJobPage = ({ updateJobSubmit, isLoggedIn }) => {
   const [description, setDescription] = useState(job.description)
   const [salary, setSalary] = useState(job.salary)
   const [companyName, setCompanyName] = useState(job.company.name)
-  const [companyDescription, setcompanyDescription] = useState(job.company.description)
-  const [contactEmail, setcontactEmail] = useState(job.company.contactEmail)
-  const [contactPhone, setcontactPhone] = useState(job.company.contactPhone)
+  const [companyDescription, setCompanyDescription] = useState(job.company.description)
+  const [contactEmail, setContactEmail] = useState(job.company.contactEmail)
+  const [contactPhone, setContactPhone] = useState(job.company.contactPhone)
 
   const navigate = useNavigate()
   const { id } = useParams();
@@ -184,7 +184,7 @@ const EditJobPage = ({ updateJobSubmit, isLoggedIn }) => {
                   rows="4"
                   placeholder="What does your company do?"
                   value={companyDescription}
-                  onChange={(e) => setcompanyDescription(e.target.value)}
+                  onChange={(e) => setCompanyDescription(e.target.value)}
                 ></textarea>
               </div>
 
@@ -204,7 +204,7 @@ const EditJobPage = ({ updateJobSubmit, isLoggedIn }) => {
                   placeholder="Email address for applicants"
                   required
                   value={contactEmail}
-                  onChange={(e) => setcontactEmail(e.target.value)}
+                  onChange={(e) => setContactEmail(e.target.value)}
                 />
               </div>
               <div className="mb-4">
@@ -221,7 +221,7 @@ const EditJobPage = ({ updateJobSubmit, isLoggedIn }) => {
                   className="border rounded w-full py-2 px-3"
                   placeholder="Optional phone for applicants"
                   value={contactPhone}
-                  onChange={(e) => setcontactPhone(e.target.value)}
+                  onChange={(e) => setContactPhone(e.target.value)}
                 />
               </div>
 

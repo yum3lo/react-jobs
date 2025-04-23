@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt')
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3500; // axios baseURL
+const PORT = process.env.PORT || 3500;
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -78,6 +78,178 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Login failed' })
   }
 })
+
+app.get('/jobs', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT * FROM jobs ORDER BY posted_at DESC
+    `);
+    
+    const formattedJobs = result.rows.map(job => ({
+      id: job.id,
+      title: job.title,
+      type: job.type,
+      description: job.description,
+      location: job.location,
+      salary: job.salary,
+      company: {
+        name: job.company_name,
+        description: job.company_description,
+        contactEmail: job.company_contact_email,
+        contactPhone: job.company_contact_phone
+      }
+    }));
+    
+    res.json({ jobs: formattedJobs });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch jobs' });
+  }
+});
+
+app.get('/jobs/:id', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM jobs WHERE id = $1',
+      [req.params.id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+    
+    const job = result.rows[0];
+    res.json({
+      id: job.id,
+      title: job.title,
+      type: job.type,
+      description: job.description,
+      location: job.location,
+      salary: job.salary,
+      company: {
+        name: job.company_name,
+        description: job.company_description,
+        contactEmail: job.company_contact_email,
+        contactPhone: job.company_contact_phone
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch job' });
+  }
+});
+
+app.post('/jobs', async (req, res) => {
+  try {
+    const { title, type, description, location, salary, company } = req.body;
+    
+    const result = await pool.query(
+      `INSERT INTO jobs (
+        id, title, type, description, location, salary,
+        company_name, company_description, company_contact_email, company_contact_phone
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+      ) RETURNING *`,
+      [
+        Date.now().toString(36), // Simple ID generation
+        title,
+        type,
+        description,
+        location,
+        salary,
+        company.name,
+        company.description,
+        company.contactEmail,
+        company.contactPhone
+      ]
+    );
+    
+    const newJob = result.rows[0];
+    res.status(201).json({
+      id: newJob.id,
+      title: newJob.title,
+      company: {
+        name: newJob.company_name,
+        description: newJob.company_description,
+        contactEmail: newJob.company_contact_email,
+        contactPhone: newJob.company_contact_phone
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create job' });
+  }
+});
+
+app.delete('/api/jobs/:id', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'DELETE FROM jobs WHERE id = $1 RETURNING *',
+      [req.params.id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+    
+    res.json({ message: 'Job deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete job' });
+  }
+});
+
+app.put('/api/jobs/:id', async (req, res) => {
+  try {
+    const { title, type, description, location, salary, company } = req.body;
+    
+    const result = await pool.query(
+      `UPDATE jobs SET
+        title = $1,
+        type = $2,
+        description = $3,
+        location = $4,
+        salary = $5,
+        company_name = $6,
+        company_description = $7,
+        company_contact_email = $8,
+        company_contact_phone = $9
+      WHERE id = $10
+      RETURNING *`,
+      [
+        title,
+        type,
+        description,
+        location,
+        salary,
+        company.name,
+        company.description,
+        company.contactEmail,
+        company.contactPhone,
+        req.params.id
+      ]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+    
+    const updatedJob = result.rows[0];
+    res.json({
+      id: updatedJob.id,
+      title: updatedJob.title,
+      company: {
+        name: updatedJob.company_name,
+        description: updatedJob.company_description,
+        contactEmail: updatedJob.company_contact_email,
+        contactPhone: updatedJob.company_contact_phone
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update job' });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
