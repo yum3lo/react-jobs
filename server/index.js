@@ -81,9 +81,13 @@ app.post('/login', async (req, res) => {
 
 app.get('/jobs', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT * FROM jobs ORDER BY id ASC
-    `);
+    let query = 'SELECT * FROM jobs';
+    const limit = req.query._limit;
+    if (limit && !isNaN(limit)) {
+      query += ` LIMIT ${parseInt(limit)}`;
+    }
+
+    const result = await pool.query(query);
     
     const formattedJobs = result.rows.map(job => ({
       id: job.id,
@@ -189,7 +193,7 @@ app.post('/jobs', async (req, res) => {
   }
 });
 
-app.delete('/api/jobs/:id', async (req, res) => {
+app.delete('/jobs/:id', async (req, res) => {
   try {
     const result = await pool.query(
       'DELETE FROM jobs WHERE id = $1 RETURNING *',
@@ -197,19 +201,32 @@ app.delete('/api/jobs/:id', async (req, res) => {
     );
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Job not found' });
+      return res.status(404).json({ 
+        error: 'Job not found' 
+      });
     }
     
-    res.json({ message: 'Job deleted successfully' });
+    res.json({ 
+      message: 'Job deleted successfully'
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to delete job' });
+    console.error('Delete error:', err);
+    res.status(500).json({ 
+      error: 'Failed to delete job' 
+    });
   }
 });
 
-app.put('/api/jobs/:id', async (req, res) => {
+app.put('/jobs/:id', async (req, res) => {
   try {
-    const { title, type, description, location, salary, company } = req.body;
+    const { 
+      title, 
+      type, 
+      description, 
+      location, 
+      salary, 
+      company 
+    } = req.body;
     
     const result = await pool.query(
       `UPDATE jobs SET

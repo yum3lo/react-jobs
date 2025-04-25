@@ -5,12 +5,17 @@ import { toast } from "react-toastify";
 const JobPage = ({deleteJob, isLoggedIn}) => {
   const navigate = useNavigate();
   const job = useLoaderData();
-  const onDeleteClick = (jobId) => {
+  
+  const onDeleteClick = async (jobId) => {
     const confirm = window.confirm('Are you sure you want to delete this job?');
     if (!confirm) return;
-    deleteJob(jobId);
-    toast.success('Job deleted successfully!');
-    navigate('/jobs');
+    try {
+      await deleteJob(jobId);
+      toast.success('Job deleted successfully!');
+      navigate('/jobs');
+    } catch (error) {
+      toast.error(error.message);
+    }
   }
 
   return (

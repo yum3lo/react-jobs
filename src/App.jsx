@@ -33,10 +33,17 @@ const App = () => {
 
   const deleteJob = async (id) => {
     const res = await fetch(`/api/jobs/${id}`, {
-      method: 'DELETE'
-    })
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to delete job');
+    }
+    
     return res.json();
-  }
+  };
 
   const updateJob = async (job) => {
     const res = await fetch(`/api/jobs/${job.id}`, {
@@ -44,8 +51,15 @@ const App = () => {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(job)
     })
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to update job');
+    }
+
     return res.json();
   }
   
@@ -55,7 +69,7 @@ const App = () => {
         <Route index element={<HomePage isLoggedIn={isLoggedIn}/>} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/add-job" element={<AddJobPage addJobSubmit={addJob} isLoggedIn={isLoggedIn}/>} />
-        <Route path="/jobs/:id" element={<JobPage isLoggedIn={isLoggedIn} deleteJob={ deleteJob } />}  loader={jobLoader}/>
+        <Route path="/jobs/:id" element={<JobPage isLoggedIn={isLoggedIn} deleteJob={deleteJob} />}  loader={jobLoader}/>
         <Route path="/jobs/:id/edit" element={<UpdateJobPage updateJobSubmit={updateJob} isLoggedIn={isLoggedIn} />} loader={jobLoader}/>
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/register" element={<RegisterPage setIsLoggedIn={setIsLoggedIn}/>} />
