@@ -2,25 +2,63 @@ import { useState, useEffect } from "react";
 import Spinner from "./Spinner";
 import JobListing from "./JobListing";
 
-const JobListings = ({ isHome = false }) => {
+const JobListings = ({ isHome = false, filters = {} }) => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filteredJobs, setFilteredJobs] = useState([]);
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const apiUrl = isHome ? "/api/jobs?_limit=3" : "/api/jobs";
       try {
+        const apiUrl = isHome ? "/api/jobs?_limit=3" : "/api/jobs";
         const res = await fetch(apiUrl);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
         const data = await res.json();
-        setJobs(data.jobs || data);
+        const receivedJobs = Array.isArray(data) ? data : (data.jobs || []);
+        
+        setJobs(receivedJobs);
+        setFilteredJobs(receivedJobs);
       } catch (error) {
-        console.log("Error fetching data", error);
+        console.error("Error fetching jobs:", error);
+        setJobs([]);
+        setFilteredJobs([]);
       } finally {
         setLoading(false);
       }
     };
+    
     fetchJobs();
-  }, []);
+  }, [isHome]);
+
+  useEffect(() => {
+    if (jobs.length === 0) return;
+    
+    const applyFilters = () => {
+      let result = [...jobs];
+      
+      if (filters.location) {
+        result = result.filter(job => 
+          job.location.toLowerCase().includes(filters.location.toLowerCase())
+        );
+      }
+      
+      if (filters.type) {
+        result = result.filter(job => job.type === filters.type);
+      }
+      
+      if (filters.salary) {
+        result = result.filter(job => job.salary === filters.salary);
+      }
+      
+      setFilteredJobs(result);
+    };
+    
+    applyFilters();
+  }, [filters, jobs]);
 
   return (
     <section className="bg-[var(--primary)] w-full px-6 py-10">
@@ -28,14 +66,25 @@ const JobListings = ({ isHome = false }) => {
         <h2 className="text-3xl font-bold text-[var(--background)] mb-10 text-center">
           {isHome ? "Recent Jobs" : "Browse Jobs"}
         </h2>
+        
         {loading ? (
           <Spinner loading={loading} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {jobs.map((job) => (
-              <JobListing key={job.id} job={job} />
-            ))}
-          </div>
+          <>
+            {filteredJobs.length === 0 ? (
+              <p className="text-center text-[var(--background)] py-10">
+                {jobs.length === 0 
+                  ? "No jobs available" 
+                  : "No jobs match your filters"}
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {filteredJobs.map(job => (
+                  <JobListing key={job.id} job={job} />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>

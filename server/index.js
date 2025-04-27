@@ -83,28 +83,33 @@ app.get('/jobs', async (req, res) => {
   try {
     let query = 'SELECT * FROM jobs';
     const limit = req.query._limit;
+    const params = [];
+    const conditions = [];
+
     if (limit && !isNaN(limit)) {
-      query += ` LIMIT ${parseInt(limit)}`;
+      query += ` LIMIT $${params.length + 1}`; // + 1 for the next parameter index
+      params.push(parseInt(limit));
     }
 
-    const result = await pool.query(query);
+    if (req.query.location) {
+      conditions.push(`location ILIKE $${params.length + 1}`);
+      params.push(`%${req.query.location}%`);
+    }
+    if (req.query.type) {
+      conditions.push(`type = $${params.length + 1}`);
+      params.push(req.query.type);
+    }
+    if (req.query.salary) {
+      conditions.push(`salary = $${params.length + 1}`);
+      params.push(req.query.salary);
+    }
+    if (conditions.length > 0) {
+      query = `SELECT * FROM jobs WHERE ${conditions.join(' AND ')}` + (req.query._limit ? ` LIMIT $${params.length + 1}` : '');
+    }
+
+    const result = await pool.query(query, params);
     
-    const formattedJobs = result.rows.map(job => ({
-      id: job.id,
-      title: job.title,
-      type: job.type,
-      description: job.description,
-      location: job.location,
-      salary: job.salary,
-      company: {
-        name: job.company_name,
-        description: job.company_description,
-        contactEmail: job.company_contact_email,
-        contactPhone: job.company_contact_phone
-      }
-    }));
-    
-    res.json({ jobs: formattedJobs });
+    res.json({ jobs: result.rows });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch jobs' });
