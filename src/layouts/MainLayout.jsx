@@ -8,7 +8,9 @@ const MainLayout = ({ isLoggedIn, setIsLoggedIn }) => {
   return (
     <>
       <Preloader/>
-      <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+      <div className="h-[80px]">
+        <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+      </div>
       <Outlet />
       <ToastContainer />
     </>

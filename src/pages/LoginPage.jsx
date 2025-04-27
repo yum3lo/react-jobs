@@ -49,17 +49,17 @@ const LoginPage = ({ setIsLoggedIn }) => {
       toast.success('Login successful!');
       navigate('/');
     } catch (err) {
-      toast.error(err.message || 'Login failed!');
+      toast.error("Login failed!! Try later");
       console.error(err);
     }
   }
 
   return (
     <>
-      <section className="bg-indigo-50">
+      <section className="bg-[var(--hover)]">
         <div className="container m-auto max-w-lg py-24">
           <div
-            className="bg-white px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0"
+            className="bg-[var(--background)] px-6 py-8 mb-4 shadow-md rounded-md m-4 md:m-0"
           >
             <form onSubmit={handleSubmit}>
               <h2 className="text-3xl text-center font-semibold mb-6">
@@ -69,7 +69,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
               <div className="mb-4">
                 <label 
                   htmlFor="username" 
-                  className="block text-gray-700 font-bold mb-2"
+                  className="block text- font-bold mb-2"
                 >
                   Username
                   <FaCheck className={validName ? "text-green-500 inline-block ml-1" : "hidden"}/>
@@ -79,7 +79,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
                   type="text"
                   id="username"
                   ref={userRef} // set focus on the input
-                  className="border rounded w-full py-2 px-3 mb-2"
+                  className="bg-[var(--hover)] text-[var(--primary)] rounded w-full py-2 px-3 mb-2"
                   placeholder="john_doe"
                   required
                   onChange={(e) => setUser(e.target.value)}
@@ -97,7 +97,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
               <div className="mb-4">
                 <label 
                   htmlFor="password" 
-                  className="block text-gray-700 font-bold mb-2"
+                  className="block text-[var(--card)] font-bold mb-2"
                 >
                   Password
                   <FaCheck className={validPwd ? "text-green-500 inline-block ml-1" : "hidden"}/>
@@ -107,7 +107,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
                   type="password"
                   id="password"
                   autoComplete="off"
-                  className="border rounded w-full py-2 px-3 mb-2"
+                  className="bg-[var(--hover)] rounded w-full py-2 px-3 mb-2"
                   placeholder="•••••••••"
                   required
                   onChange={(e) => setPwd(e.target.value)}
@@ -123,7 +123,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
               </div>
 
               <button
-                className={`bg-indigo-500 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline ${!validName || !validPwd ? '' : 'hover:bg-indigo-600'}`}
+                className={`bg-[var(--card)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline ${!validName || !validPwd ? '' : 'hover:bg-[var(--primary)]'}`}
                 disabled={!validName || !validPwd}
               >
                 Login

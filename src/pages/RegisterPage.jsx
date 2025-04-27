@@ -62,32 +62,32 @@ const RegisterPage = ({ setIsLoggedIn }) => {
         credentials: 'include',
         body: JSON.stringify({ user, pwd })
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || response.status);
-      }
-
+  
       const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP ${response.status}`);
+      }
+  
       setIsLoggedIn(true);
       toast.success('Registration successful!');
       navigate('/');
     } catch (err) {
-      if (err.message === 'Network Error') {
-        toast.error('Network error, please try again later');
-      } else if (err.response?.status === 409) {
+      if (err.message.includes('409')) {
         toast.error('Username already exists');
+      } else if (err.message === 'Network Error') {
+        toast.error('Network error! Try again later');
       } else {
-        toast.error('Registration failed');
+        toast.error('Registration failed! Try again later');
       }
     }
   }
 
   return (
     <>
-      <section className="bg-indigo-50">
+      <section className="bg-[var(--hover)]">
         <div className="container m-auto max-w-lg py-24">
-          <div className="bg-white px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0">
+          <div className="bg-[var(--background)] px-6 py-8 mb-4 shadow-md rounded-md m-4 md:m-0">
             <form onSubmit={handleSubmit}>
               <h2 className="text-3xl text-center font-semibold mb-6">
                 Register
@@ -96,7 +96,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
               <div className="mb-4">
                 <label 
                   htmlFor="username" 
-                  className="block text-gray-700 font-bold mb-2"
+                  className="block text-[var(--card)] font-bold mb-2"
                 >
                   Username
                   <FaCheck className={validName ? "text-green-500 inline-block ml-1" : "hidden"}/>
@@ -107,7 +107,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
                   id="username"
                   ref={userRef} // set focus on the input
                   autoComplete="off"
-                  className="border rounded w-full py-2 px-3 mb-2"
+                  className="bg-[var(--hover)] text-[var(--primary)] rounded w-full py-2 px-3 mb-2"
                   placeholder="john_doe"
                   required
                   onChange={(e) => setUser(e.target.value)}
@@ -126,7 +126,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
               <div className="mb-4">
                 <label 
                   htmlFor="password" 
-                  className="block text-gray-700 font-bold mb-2"
+                  className="block text-[var(--card)] font-bold mb-2"
                 >
                   Password
                   <FaCheck className={validPwd ? "text-green-500 inline-block ml-1" : "hidden"}/>
@@ -136,7 +136,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
                   type="password"
                   id="password"
                   autoComplete="off"
-                  className="border rounded w-full py-2 px-3 mb-2"
+                  className="bg-[var(--hover)] rounded w-full py-2 px-3 mb-2"
                   placeholder="•••••••••"
                   required
                   onChange={(e) => setPwd(e.target.value)}
@@ -154,7 +154,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
               <div className="mb-4">
                 <label 
                   htmlFor="confirm_pwd" 
-                  className="block text-gray-700 font-bold mb-2"
+                  className="block text-[var(--card)] font-bold mb-2"
                 >
                   Confirm Password
                   <FaCheck className={validMatchPwd && matchPwd ? "text-green-500 inline-block ml-1" : "hidden"}/>
@@ -164,7 +164,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
                   type="password"
                   id="confirm_pwd"
                   autoComplete="off"
-                  className="border rounded w-full py-2 px-3 mb-2"
+                  className="bg-[var(--hover)] rounded w-full py-2 px-3 mb-2"
                   placeholder="•••••••••"
                   required
                   onChange={(e) => setMatchPwd(e.target.value)}
@@ -180,7 +180,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
               </div>
 
               <button
-                className={`bg-indigo-500 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline ${!validName || !validPwd || !validMatchPwd ? '' : 'hover:bg-indigo-600'}`}
+                className={`bg-[var(--card)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline ${!validName || !validPwd || !validMatchPwd ? '' : 'hover:bg-[var(--primary)]'}`}
                 disabled={!validName || !validPwd || !validMatchPwd}
               >
                 Register
@@ -188,7 +188,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
 
               <div className="mt-4 text-center">
                 <p>Already have an account?</p>
-                <Link to={'/login'} className="underline text-orange-600">Sign in</Link>
+                <Link to={'/login'} className="underline text-[var(--red)]">Sign in</Link>
               </div>
             </form>
           </div>

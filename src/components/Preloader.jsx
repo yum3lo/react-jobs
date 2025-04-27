@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "../assets/images/logo.svg";
+import { FaReact } from "react-icons/fa";
 
 const Preloader = () => {
   const [loading, setLoading] = useState(true);
@@ -14,10 +14,12 @@ const Preloader = () => {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-indigo-900 z-50 preloader-pulse">
+      <div className="fixed inset-0 flex items-center justify-center bg-[var(--background)] z-50 preloader-pulse">
         <div className="text-center">
-          <img src={logo} alt="React Jobs Logo" className="h-20 w-auto mx-auto mb-4" />
-          <h1 className="text-white text-4xl font-bold">React Jobs</h1>
+          <div className="mb-4 justify-center flex items-center">
+            <FaReact className="text-[var(--primary)] text-7xl" />
+          </div>
+          <h1 className="text-[var(--primary)] text-4xl font-bold">React Jobs</h1>
         </div>
       </div>
     );

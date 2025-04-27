@@ -1,5 +1,5 @@
 const Card = (
-	{ children, bg = 'bg-gray-100' }
+	{ children, bg = 'bg-[var(--hover)]' }
 ) => {
 	return (
 		<div className={`${bg} p-6 rounded-lg shadow-md`}>

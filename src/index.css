@@ -4,16 +4,16 @@
 
 @keyframes pulse {
   0% {
-    background-color: #303F9F; /* indigo-900 */
+    background-color: var(--background);
   }
   50% {
-    background-color: #7986CB; /* indigo-700 */
+    background-color: var(--hover);
   }
   100% {
-    background-color: #303F9F; /* indigo-900 */
+    background-color: var(--background);
   }
 }
 
 .preloader-pulse {
-  animation: pulse 2s infinite; /* Adjust the duration as needed */
+  animation: pulse 2s infinite;
 }

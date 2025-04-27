@@ -1,61 +1,65 @@
-import logo from "../assets/images/logo.svg";
+import { FaReact } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { FaRightFromBracket } from "react-icons/fa6";
+import ThemeToggle from "./ThemeToggle";
 
 const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
-  const linkClass = ({ isActive }) =>
-    isActive
-      ? "text-white bg-black hover:bg-indigo-300 rounded-md px-3 py-2"
-      : "text-white hover:bg-indigo-300 rounded-md px-3 py-2";
-
+  const linkClass = ({ isActive }) => {
+    const baseClasses = "rounded-md px-3 py-2 transition-colors duration-100";
+    
+    return isActive
+    ? `${baseClasses} text-[var(--primary)] border-2 border-[var(--primary)] hover:bg-[var(--hover)]`
+    : `${baseClasses} text-[var(--primary)] hover:bg-[var(--hover)]`;
+  }
   const handleLogout = () => {
     setIsLoggedIn(false);
     window.location.reload();
   }
 
   return (
-    <nav className="bg-indigo-900">
+    <nav className="bg-[var(--background)] dark:bg-dark-background shadow-md transition-colors duration-300 fixed w-full z-10">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <div className="flex flex-1 items-center justify-center md:items-stretch md:justify-start">
             <NavLink className="flex flex-shrink-0 items-center mr-4" to="/">
-              <img className="h-10 w-auto" src={logo} alt="React Jobs" />
-              <span className="hidden md:block text-white text-2xl font-bold ml-2">
+            <FaReact className="text-4xl"/>
+              <span className="hidden md:block text-primary dark:text-dark-primary text-2xl font-bold ml-2">
                 React Jobs
               </span>
             </NavLink>
             <div className="md:ml-auto">
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 items-center">
                 <NavLink to="/" className={linkClass}>
                   Home
                 </NavLink>
                 <NavLink to="/jobs" className={linkClass}>
                   Jobs
                 </NavLink>
-                {isLoggedIn ? (
-                  <>
-                    <NavLink to="/add-job" className={linkClass}>
-                      Add Job
-                    </NavLink>
-                    <div className="flex justify-center items-center">
-                      <NavLink
-                        onClick={handleLogout} 
-                        className="bg-orange-500 hover:bg-orange-600 rounded-md px-3 py-2"
-                      >
-                        <FaRightFromBracket className="text-white"/>
+
+                <div className="flex items-center space-x-4">
+                  <ThemeToggle />
+                  {isLoggedIn ? (
+                    <>
+                      <NavLink to="/add-job" className={linkClass}>
+                        Add Job
                       </NavLink>
-                    </div>
-                  </> 
-                ) : (
-                  <>
-                    <NavLink to="/register" className={linkClass}>
-                      Register
-                    </NavLink>
-                    <NavLink to="/login" className={linkClass}>
-                      Login
-                    </NavLink>
-                  </>
-                )}
+                      <div className="px-3 py-2 flex">
+                        <button onClick={handleLogout}>
+                          <FaRightFromBracket className="text-[var(--primary)] hover:text-[var(--red)]"/>
+                        </button>
+                      </div>
+                    </> 
+                  ) : (
+                    <>
+                      <NavLink to="/register" className={linkClass}>
+                        Register
+                      </NavLink>
+                      <NavLink to="/login" className={linkClass}>
+                        Login
+                      </NavLink>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -16,6 +16,7 @@ import AddJobPage from "./pages/AddJobPage";
 import UpdateJobPage from "./pages/UpdateJobPage";
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import './styles/theme.css';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

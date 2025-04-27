@@ -1,0 +1,24 @@
+:root, .light-theme {
+  --background: #ECF0F8;
+  --primary: #03045E;
+  --card: #515B97;
+  --hover: #C0CDE1;
+  --red: #CC3E28;
+  --dark-red: #AA3422;
+  --opposite: #010228;
+}
+
+.dark-theme {
+  --background: #010228;
+  --primary: #ECF0F8;
+  --card: #C0CDE1;
+  --hover: #1A254C;
+  --dark-red: #DA5844;
+  --opposite: #C0CDE1;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--primary);
+  transition: background-color 0.3s, color 0.3s;
+}
