@@ -29,6 +29,8 @@ const LoginPage = ({ setIsLoggedIn }) => {
       toast.error('Please fill in all fields');
       return;
     }
+
+    const toastId = toast.loading('Logging in...');
     
     try {
       const response = await fetch(`${API_BASE_URL}/login`, {
@@ -45,12 +47,23 @@ const LoginPage = ({ setIsLoggedIn }) => {
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
+
+      toast.update(toastId, {
+        render: 'Login successful!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 2000
+      });
       
       setIsLoggedIn(true);
-      toast.success('Login successful!');
       navigate('/');
     } catch (err) {
-      toast.error("Login failed! Try later");
+      toast.update(toastId, {
+        render: err.message || 'Login failed!',
+        type: 'error',
+        isLoading: false,
+        autoClose: 2000
+      });
       console.error(err);
     }
   }

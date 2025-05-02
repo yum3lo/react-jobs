@@ -54,6 +54,8 @@ const RegisterPage = ({ setIsLoggedIn }) => {
       return;
     }
     
+    const toastId = toast.loading('Registering...');
+
     try {
       const response = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
@@ -70,17 +72,23 @@ const RegisterPage = ({ setIsLoggedIn }) => {
         throw new Error(data.message || `HTTP ${response.status}`);
       }
   
+      toast.update(toastId, {
+        render: 'Registration successful!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 2000
+      });
+
       setIsLoggedIn(true);
-      toast.success('Registration successful!');
       navigate('/');
     } catch (err) {
-      if (err.message.includes('409')) {
-        toast.error('Username already exists');
-      } else if (err.message === 'Network Error') {
-        toast.error('Network error! Try again later');
-      } else {
-        toast.error('Registration failed! Try again later');
-      }
+      toast.update(toastId, {
+        render: err.message || 'Registration failed!',
+        type: 'error',
+        isLoading: false,
+        autoClose: 2000
+      });
+      console.error(err);
     }
   }
 
