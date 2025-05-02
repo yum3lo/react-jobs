@@ -44,7 +44,7 @@ const JobListing = ({ job }) => {
           </div>
           <Link
             to={`/jobs/${job.id}`}
-            className="h-[36px] bg-[var(--primary)] hover:bg-[var(--card)] text-[var(--background)] p-2 rounded-lg text-center text-sm"
+            className="h-[36px] bg-[var(--text)] hover:bg-[var(--card)] text-[var(--background)] p-2 rounded-lg text-center text-sm"
           >
             Read More
           </Link>

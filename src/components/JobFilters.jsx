@@ -30,19 +30,19 @@ const JobFilters = ({ onFilter }) => {
   };
 
   return (
-    <div className="bg-[var(--hover)] p-6">
-      <h3 className="text-xl font-bold mb-4">Filter Jobs</h3>
+    <div className="bg-[var(--card)] p-6">
+      <h3 className="text-xl text-[var(--background)] font-bold mb-4">Filter Jobs</h3>
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-[var(--card)] mb-1">
+            <label htmlFor="location" className="block text-sm font-medium text-[var(--hover)] mb-1">
               Location
             </label>
             <input
               type="text"
               id="location"
               name="location"
-              className="bg-[var(--background)] rounded w-full py-2 px-3"
+              className="bg-[var(--hover)] rounded w-full py-2 px-3"
               placeholder="City or State"
               value={filters.location}
               onChange={handleChange}
@@ -50,13 +50,13 @@ const JobFilters = ({ onFilter }) => {
           </div>
 
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-[var(--card)] mb-1">
+            <label htmlFor="type" className="block text-sm font-medium text-[var(--hover)] mb-1">
               Job Type
             </label>
             <select
               id="type"
               name="type"
-              className="bg-[var(--background)] rounded w-full py-2 px-3"
+              className="bg-[var(--hover)] rounded w-full py-2 px-3"
               value={filters.type}
               onChange={handleChange}
             >
@@ -69,13 +69,13 @@ const JobFilters = ({ onFilter }) => {
           </div>
 
           <div>
-            <label htmlFor="salary" className="block text-sm font-medium text-[var(--card)] mb-1">
+            <label htmlFor="salary" className="block text-sm font-medium text-[var(--hover)] mb-1">
               Salary Range
             </label>
             <select
               id="salary"
               name="salary"
-              className="bg-[var(--background)] rounded w-full py-2 px-3"
+              className="bg-[var(--hover)] rounded w-full py-2 px-3"
               value={filters.salary}
               onChange={handleChange}
             >
@@ -99,13 +99,13 @@ const JobFilters = ({ onFilter }) => {
           <button
             type="button"
             onClick={handleReset}
-            className="px-4 py-2 border border-[var(--primary)] text-[var(--primary)] rounded-md hover:bg-[var(--hover)]"
+            className="text-[var(--background)] px-4 py-2 border border-[var(--background)] rounded-md hover:bg-[var(--opposite)]"
           >
             Reset
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--primary)] text-[var(--background)] rounded-md hover:bg-[var(--card)]"
+            className="px-4 py-2 bg-[var(--text)] text-[var(--background)] rounded-md hover:bg-[var(--opposite)]"
           >
             Apply Filters
           </button>

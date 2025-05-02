@@ -228,7 +228,7 @@ const EditJobPage = ({ updateJobSubmit, isLoggedIn }) => {
 
               <div>
                 <button
-                  className="bg-[var(--card)] text-[var(--background)] hover:bg-[var(--primary)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
+                  className="bg-[var(--card)] text-[var(--background)] hover:bg-[var(--text)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
                   type="submit"
                 >
                   Update Job

@@ -9,7 +9,7 @@ const NotFoundPage = () => {
       <p className="text-xl mb-5">This page does not exist</p>
       <Link
         to="/"
-        className="text-[var(--background)] bg-[var(--primary)] hover:bg-[var(--card)] rounded-md px-3 py-2 mt-4 width-1/2 mx-auto"
+        className="text-[var(--background)] bg-[var(--text)] hover:bg-[var(--card)] rounded-md px-3 py-2 mt-4 width-1/2 mx-auto"
       >
         Go Back{" "}
       </Link>

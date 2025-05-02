@@ -79,7 +79,7 @@ const AddJobPage = ({ addJobSubmit, isLoggedIn }) => {
                   type="text"
                   id="title"
                   name="title"
-                  className="bg-[var(--hover)] text-[var(--primary)] rounded w-full py-2 px-3 mb-2"
+                  className="bg-[var(--hover)] rounded w-full py-2 px-3 mb-2"
                   placeholder="eg. Junior React Developer"
                   required
                   value={title}
@@ -222,7 +222,7 @@ const AddJobPage = ({ addJobSubmit, isLoggedIn }) => {
 
               <div>
                 <button
-                  className="bg-[var(--card)] text-[var(--background)] hover:bg-[var(--primary)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
+                  className="bg-[var(--card)] text-[var(--background)] hover:bg-[var(--text)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
                   type="submit"
                 >
                   Add Job

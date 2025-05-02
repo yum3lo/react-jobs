@@ -21,7 +21,7 @@ const JobPage = ({deleteJob, isLoggedIn}) => {
 
   return (
     <>
-      <section className="bg-[var(--primary)]">
+      <section className="bg-[var(--card)]">
         <div className="container m-auto py-6 px-6">
           <Link
             to="/jobs"
@@ -85,7 +85,7 @@ const JobPage = ({deleteJob, isLoggedIn}) => {
                   <h3 className="text-xl font-bold mb-6">Manage Job</h3>
                   <Link
                     to={`/jobs/${job.id}/edit`}
-                    className="bg-[var(--card)] hover:bg-[var(--primary)] text-[var(--background)] text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
+                    className="bg-[var(--card)] hover:bg-[var(--text)] text-[var(--background)] text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
                   >
                     Edit Job
                   </Link>

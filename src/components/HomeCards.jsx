@@ -15,7 +15,7 @@ const HomeCards = ({ isLoggedIn }) => {
             </p>
             <Link
               to="/jobs"
-              className="inline-block bg-[var(--opposite)] text-[var(--background)] rounded-lg px-4 py-2 hover:bg-[var(--red)]"
+              className="inline-block bg-[var(--text)] text-[var(--background)] rounded-lg px-4 py-2 hover:bg-[var(--red)]"
             >
               Browse Jobs
             </Link>
@@ -29,7 +29,7 @@ const HomeCards = ({ isLoggedIn }) => {
             </p>
             <Link
               to={isLoggedIn ? "/add-job" : "/login"}
-              className="inline-block bg-[var(--hover)] text-[var(--primary)] rounded-lg px-4 py-2 hover:bg-[var(--background)]"
+              className="inline-block bg-[var(--hover)] text-[var(--text)] rounded-lg px-4 py-2 hover:bg-[var(--background)]"
             >
               Add Job
             </Link>

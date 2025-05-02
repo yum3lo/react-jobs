@@ -8,8 +8,8 @@ const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
     const baseClasses = "rounded-md px-3 py-2 transition-colors duration-100";
     
     return isActive
-    ? `${baseClasses} text-[var(--primary)] border-2 border-[var(--primary)] hover:bg-[var(--hover)]`
-    : `${baseClasses} text-[var(--primary)] hover:bg-[var(--hover)]`;
+    ? `${baseClasses} border-2 border-[var(--text)] hover:bg-[var(--hover)]`
+    : `${baseClasses} hover:bg-[var(--hover)]`;
   }
   const handleLogout = () => {
     setIsLoggedIn(false);
@@ -23,7 +23,7 @@ const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
           <div className="flex flex-1 items-center justify-center md:items-stretch md:justify-start">
             <NavLink className="flex flex-shrink-0 items-center mr-4" to="/">
             <FaReact className="text-4xl"/>
-              <span className="hidden md:block text-primary dark:text-dark-primary text-2xl font-bold ml-2">
+              <span className="hidden md:block text-2xl font-bold ml-2">
                 React Jobs
               </span>
             </NavLink>
@@ -45,7 +45,7 @@ const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
                       </NavLink>
                       <div className="px-3 py-2 flex">
                         <button onClick={handleLogout}>
-                          <FaRightFromBracket className="text-[var(--primary)] hover:text-[var(--red)]"/>
+                          <FaRightFromBracket className="text-[var(--text)] hover:text-[var(--red)]"/>
                         </button>
                       </div>
                     </> 

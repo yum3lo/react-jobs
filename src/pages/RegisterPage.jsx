@@ -116,7 +116,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
                   id="username"
                   ref={userRef} // set focus on the input
                   autoComplete="off"
-                  className="bg-[var(--hover)] text-[var(--primary)] rounded w-full py-2 px-3 mb-2"
+                  className="bg-[var(--hover)] rounded w-full py-2 px-3 mb-2"
                   placeholder="john_doe"
                   required
                   onChange={(e) => setUser(e.target.value)}
@@ -189,7 +189,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
               </div>
 
               <button
-                className={`bg-[var(--card)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline ${!validName || !validPwd || !validMatchPwd ? '' : 'hover:bg-[var(--primary)]'}`}
+                className={`bg-[var(--card)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline ${!validName || !validPwd || !validMatchPwd ? '' : 'hover:bg-[var(--text)]'}`}
                 disabled={!validName || !validPwd || !validMatchPwd}
               >
                 Register

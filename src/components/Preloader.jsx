@@ -17,9 +17,9 @@ const Preloader = () => {
       <div className="fixed inset-0 flex items-center justify-center bg-[var(--background)] z-50 preloader-pulse">
         <div className="text-center">
           <div className="mb-4 justify-center flex items-center">
-            <FaReact className="text-[var(--primary)] text-7xl" />
+            <FaReact className="text-7xl" />
           </div>
-          <h1 className="text-[var(--primary)] text-4xl font-bold">React Jobs</h1>
+          <h1 className="text-4xl font-bold">React Jobs</h1>
         </div>
       </div>
     );
