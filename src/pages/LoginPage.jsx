@@ -49,7 +49,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
       toast.success('Login successful!');
       navigate('/');
     } catch (err) {
-      toast.error("Login failed!! Try later");
+      toast.error("Login failed! Try later");
       console.error(err);
     }
   }

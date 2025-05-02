@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Spinner from "./Spinner";
 import JobListing from "./JobListing";
 
 const JobListings = ({ isHome = false, filters = {} }) => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filteredJobs, setFilteredJobs] = useState([]);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -21,11 +20,9 @@ const JobListings = ({ isHome = false, filters = {} }) => {
         const receivedJobs = Array.isArray(data) ? data : (data.jobs || []);
         
         setJobs(receivedJobs);
-        setFilteredJobs(receivedJobs);
       } catch (error) {
         console.error("Error fetching jobs:", error);
         setJobs([]);
-        setFilteredJobs([]);
       } finally {
         setLoading(false);
       }
@@ -34,31 +31,26 @@ const JobListings = ({ isHome = false, filters = {} }) => {
     fetchJobs();
   }, [isHome]);
 
-  useEffect(() => {
-    if (jobs.length === 0) return;
-    
-    const applyFilters = () => {
-      let result = [...jobs];
-      
-      if (filters.location) {
-        result = result.filter(job => 
-          job.location.toLowerCase().includes(filters.location.toLowerCase())
-        );
-      }
-      
-      if (filters.type) {
-        result = result.filter(job => job.type === filters.type);
-      }
-      
-      if (filters.salary) {
-        result = result.filter(job => job.salary === filters.salary);
-      }
-      
-      setFilteredJobs(result);
-    };
-    
-    applyFilters();
-  }, [filters, jobs]);
+  const filteredJobs = useMemo(() => {
+    if (!jobs.length) return [];
+    let result = [...jobs];
+
+    if (filters.location) {
+      result = result.filter(job => 
+        job.location?.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
+
+    if (filters.type) {
+      result = result.filter(job => job.type === filters.type);
+    }
+
+    if (filters.salary) {
+      result = result.filter(job => job.salary === filters.salary);
+    }
+
+    return result;
+  }, [jobs, filters]);
 
   return (
     <section className="bg-[var(--primary)] w-full px-6 py-10">
