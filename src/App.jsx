@@ -77,10 +77,7 @@ const App = () => {
         <Route path="register" element={<RegisterPage setIsLoggedIn={setIsLoggedIn}/>} />
         <Route path="login" element={<LoginPage setIsLoggedIn={setIsLoggedIn}/>} />
       </Route>
-    ),
-    {
-      basename: "/react-jobs",
-    }
+    )
   );
 
   return <RouterProvider router={router} />;
