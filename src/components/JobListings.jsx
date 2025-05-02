@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Spinner from "./Spinner";
 import JobListing from "./JobListing";
+import { API_BASE_URL } from "../config";
 
 const JobListings = ({ isHome = false, filters = {} }) => {
   const [jobs, setJobs] = useState([]);
@@ -9,7 +10,7 @@ const JobListings = ({ isHome = false, filters = {} }) => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const apiUrl = isHome ? "/api/jobs?_limit=3" : "/api/jobs";
+        const apiUrl = isHome ? `${API_BASE_URL}/jobs?_limit=3` : `${API_BASE_URL}/jobs`;
         const res = await fetch(apiUrl);
         
         if (!res.ok) {

@@ -17,12 +17,13 @@ import UpdateJobPage from "./pages/UpdateJobPage";
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import './styles/theme.css';
+import { API_BASE_URL } from './config';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const addJob = async (newJob) => {
-    const res = await fetch('/api/jobs', {
+    const res = await fetch(`${API_BASE_URL}/jobs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -33,7 +34,7 @@ const App = () => {
   }
 
   const deleteJob = async (id) => {
-    const res = await fetch(`/api/jobs/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/jobs/${id}`, {
       method: 'DELETE',
       credentials: 'include'
     });
@@ -47,7 +48,7 @@ const App = () => {
   };
 
   const updateJob = async (job) => {
-    const res = await fetch(`/api/jobs/${job.id}`, {
+    const res = await fetch(`${API_BASE_URL}/jobs/${job.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -66,17 +67,20 @@ const App = () => {
   
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<MainLayout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>}>
+      <Route path="" element={<MainLayout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>}>
         <Route index element={<HomePage isLoggedIn={isLoggedIn}/>} />
-        <Route path="/jobs" element={<JobsPage />} />
-        <Route path="/add-job" element={<AddJobPage addJobSubmit={addJob} isLoggedIn={isLoggedIn}/>} />
-        <Route path="/jobs/:id" element={<JobPage isLoggedIn={isLoggedIn} deleteJob={deleteJob} />}  loader={jobLoader}/>
-        <Route path="/jobs/:id/edit" element={<UpdateJobPage updateJobSubmit={updateJob} isLoggedIn={isLoggedIn} />} loader={jobLoader}/>
+        <Route path="jobs" element={<JobsPage />} />
+        <Route path="add-job" element={<AddJobPage addJobSubmit={addJob} isLoggedIn={isLoggedIn}/>} />
+        <Route path="jobs/:id" element={<JobPage isLoggedIn={isLoggedIn} deleteJob={deleteJob} />}  loader={jobLoader}/>
+        <Route path="jobs/:id/edit" element={<UpdateJobPage updateJobSubmit={updateJob} isLoggedIn={isLoggedIn} />} loader={jobLoader}/>
         <Route path="*" element={<NotFoundPage />} />
-        <Route path="/register" element={<RegisterPage setIsLoggedIn={setIsLoggedIn}/>} />
-        <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn}/>} />
+        <Route path="register" element={<RegisterPage setIsLoggedIn={setIsLoggedIn}/>} />
+        <Route path="login" element={<LoginPage setIsLoggedIn={setIsLoggedIn}/>} />
       </Route>
-    )
+    ),
+    {
+      basename: "/react-jobs",
+    }
   );
 
   return <RouterProvider router={router} />;

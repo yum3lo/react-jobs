@@ -7,12 +7,31 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3500;
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT
+let pool;
+if (process.env.DATABASE_URL) {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { 
+      rejectUnauthorized: false 
+    }
+  });
+} else {
+  pool = new Pool({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT
+  });
+}
+
+// test the database connection
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('Database connection error:', err);
+  } else {
+    console.log('Database connected successfully');
+  }
 });
 
 app.use(express.json());
@@ -20,6 +39,10 @@ app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }));
+
+app.get('/', (req, res) => {
+  res.json({ status: 'API is running' });
+});
 
 app.post('/register', async (req, res) => {
   const { user, pwd } = req.body;
@@ -158,8 +181,6 @@ app.post('/jobs', async (req, res) => {
       salary, 
       company 
     } = req.body;
-
-    const id = Date.now().toString(36);
     
     const result = await pool.query(
       `INSERT INTO jobs (

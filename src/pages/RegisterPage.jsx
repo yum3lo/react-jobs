@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaInfoCircle } from "react-icons/fa";
+import { API_BASE_URL } from '../config';
 
 const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/
@@ -54,7 +55,7 @@ const RegisterPage = ({ setIsLoggedIn }) => {
     }
     
     try {
-      const response = await fetch('/api/register', {
+      const response = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

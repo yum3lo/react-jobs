@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaInfoCircle } from "react-icons/fa";
+import { API_BASE_URL } from '../config';
 
 const LoginPage = ({ setIsLoggedIn }) => {
   const userRef = useRef();
@@ -30,7 +31,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
     }
     
     try {
-      const response = await fetch('/api/login', {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
