@@ -18,10 +18,11 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={() => setDarkMode(!darkMode)}
-      className="px-4 py-2 rounded-full bg-[var(--text)] text-[var(--background)] hover:bg-[var(--opposite)] transition-colors duration-300 border-none cursor-pointer"
+      className="p-2 md:px-4 md:py-2 md:rounded-full md:bg-[var(--text)] md:text-[var(--background)] md:hover:bg-[var(--opposite)] transition-colors duration-300 border-none cursor-pointer"
       aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
     >
-      {darkMode ? '☀️ Light' : '🌙 Dark'}
+      <span className="md:hidden">{darkMode ? '☀️' : '🌙'}</span>
+      <span className="hidden md:inline">{darkMode ? '☀️ Light' : '🌙 Dark'}</span>
     </button>
   );
 };

@@ -71,12 +71,10 @@ const LoginPage = ({ setIsLoggedIn }) => {
   return (
     <>
       <section className="bg-[var(--hover)]">
-        <div className="container m-auto max-w-lg py-24">
-          <div
-            className="bg-[var(--background)] px-6 py-8 mb-4 shadow-md rounded-md m-4 md:m-0"
-          >
+        <div className="container m-auto max-w-lg py-12 md:py-24">
+          <div className="bg-[var(--background)] px-6 py-8 shadow-md rounded-md m-8 md:m-0">
             <form onSubmit={handleSubmit}>
-              <h2 className="text-3xl text-center font-semibold mb-6">
+              <h2 className="text-2xl md:text-3xl text-center font-semibold mb-6">
                 Login
               </h2>
 

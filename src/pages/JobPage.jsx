@@ -22,7 +22,7 @@ const JobPage = ({deleteJob, isLoggedIn}) => {
   return (
     <>
       <section className="bg-[var(--card)]">
-        <div className="container m-auto py-6 px-6">
+        <div className="container m-auto p-6">
           <Link
             to="/jobs"
             className="text-[var(--background)] hover:underline flex items-center"
@@ -34,22 +34,22 @@ const JobPage = ({deleteJob, isLoggedIn}) => {
       </section>
 
       <section className="bg-[var(--hover)]">
-        <div className="container m-auto py-10 px-6">
+        <div className="container m-auto py-10 px-8">
           <div className="grid grid-cols-1 md:grid-cols-70/30 w-full gap-6">
             <main>
-              <div className="bg-[var(--background)] p-6 rounded-lg shadow-md text-center md:text-left">
+              <div className="bg-[var(--background)] p-4 md:p-6 rounded-lg shadow-md text-center md:text-left">
                 <div className="text-[var(--card)] mb-4">{job.type}</div>
-                <h1 className="text-3xl font-bold mb-4">
+                <h1 className="text-2xl md:text-3xl font-bold mb-4">
                   {job.title}
                 </h1>
-                <div className="text-[var(--red)] mb-3">
+                <div className="text-[var(--red)]">
                   <FaMapMarker className="inline text-lg mb-1 mr-1" />
                   {job.location}
                 </div>
               </div>
 
-              <div className="bg-[var(--background)] p-6 rounded-lg shadow-md mt-6">
-                <h3 className="text-lg font-bold mb-6">
+              <div className="bg-[var(--background)] p-4 md:p-6 rounded-lg shadow-md mt-6">
+                <h3 className="text-lg font-bold mb-2">
                   Job Description
                 </h3>
 
@@ -62,8 +62,8 @@ const JobPage = ({deleteJob, isLoggedIn}) => {
             </main>
 
             <aside>
-              <div className="bg-[var(--background)] p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold mb-6">Company Info</h3>
+              <div className="bg-[var(--background)] p-4 md:p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-bold mb-4">Company Info</h3>
 
                 <h2 className="text-2xl">{job.company.name}</h2>
 
@@ -80,32 +80,36 @@ const JobPage = ({deleteJob, isLoggedIn}) => {
                 <p className="my-2 bg-[var(--hover)] p-2 font-bold rounded-lg break-words text-sm">{job.company.contactPhone}</p>
               </div>
 
-              {isLoggedIn ? (
-                <div className="bg-[var(--background)] p-6 rounded-lg shadow-md mt-6">
-                  <h3 className="text-xl font-bold mb-6">Manage Job</h3>
-                  <Link
-                    to={`/jobs/${job.id}/edit`}
-                    className="bg-[var(--card)] hover:bg-[var(--text)] text-[var(--background)] text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
-                  >
-                    Edit Job
-                  </Link>
-                  <button
-                    className="bg-[var(--red)] hover:bg-[var(--dark-red)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
-                    onClick={() => onDeleteClick(job.id)}
-                  >
-                    Delete Job
-                  </button>
-                </div>
-              ) : 
-                <div className="bg-[var(--background)] p-6 rounded-lg shadow-md mt-6 text-center">
-                  <p>To edit or delete the job</p>
-                  <div className="inline">
-                    <Link to={'/register'} className="underline text-[var(--red)]">Sign up</Link>
-                    <span className="mx-2">or</span>
-                    <Link to={'/login'} className="underline text-[var(--red)]">Sign in</Link>
-                  </div>
-                </div>
-              }
+              <div className="bg-[var(--background)] p-6 rounded-lg shadow-md mt-6 text-center">
+                {isLoggedIn ? (
+                  <>
+                    <h3 className="text-xl font-bold mb-6">
+                      Manage Job
+                    </h3>
+                    <Link
+                      to={`/jobs/${job.id}/edit`}
+                      className="bg-[var(--card)] hover:bg-[var(--text)] text-[var(--background)] text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
+                    >
+                      Edit Job
+                    </Link>
+                    <button
+                      className="bg-[var(--red)] hover:bg-[var(--dark-red)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
+                      onClick={() => onDeleteClick(job.id)}
+                    >
+                      Delete Job
+                    </button>
+                  </>
+                ) :
+                  <> 
+                    <p>To edit or delete the job</p>
+                    <div className="inline">
+                      <Link to={'/register'} className="underline text-[var(--red)]">Sign up</Link>
+                      <span className="mx-2">or</span>
+                      <Link to={'/login'} className="underline text-[var(--red)]">Sign in</Link>
+                    </div>
+                  </>
+                }
+              </div>
             </aside>
           </div>
         </div>

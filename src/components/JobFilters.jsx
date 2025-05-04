@@ -42,7 +42,7 @@ const JobFilters = ({ onFilter }) => {
               type="text"
               id="location"
               name="location"
-              className="bg-[var(--hover)] rounded w-full py-2 px-3"
+              className="bg-[var(--background)] rounded w-full py-2 px-3"
               placeholder="City or State"
               value={filters.location}
               onChange={handleChange}
@@ -56,7 +56,7 @@ const JobFilters = ({ onFilter }) => {
             <select
               id="type"
               name="type"
-              className="bg-[var(--hover)] rounded w-full py-2 px-3"
+              className="bg-[var(--background)] rounded w-full py-2 px-3"
               value={filters.type}
               onChange={handleChange}
             >
@@ -75,7 +75,7 @@ const JobFilters = ({ onFilter }) => {
             <select
               id="salary"
               name="salary"
-              className="bg-[var(--hover)] rounded w-full py-2 px-3"
+              className="bg-[var(--background)] rounded w-full py-2 px-3"
               value={filters.salary}
               onChange={handleChange}
             >
@@ -95,7 +95,7 @@ const JobFilters = ({ onFilter }) => {
           </div>
         </div>
 
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-between md:justify-end md:space-x-4">
           <button
             type="button"
             onClick={handleReset}
