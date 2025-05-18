@@ -5,8 +5,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import { useState } from "react";
-
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import JobsPage from "./pages/JobsPage";
 import MainLayout from "./layouts/MainLayout";
@@ -20,8 +20,6 @@ import './styles/theme.css';
 import { API_BASE_URL } from './config';
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   const addJob = async (newJob) => {
     const res = await fetch(`${API_BASE_URL}/jobs`, {
       method: 'POST',
@@ -67,20 +65,32 @@ const App = () => {
   
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="" element={<MainLayout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>}>
-        <Route index element={<HomePage isLoggedIn={isLoggedIn}/>} />
+      <Route path="" element={<MainLayout />}>
+        <Route index element={<HomePage />} />
         <Route path="jobs" element={<JobsPage />} />
-        <Route path="add-job" element={<AddJobPage addJobSubmit={addJob} isLoggedIn={isLoggedIn}/>} />
-        <Route path="jobs/:id" element={<JobPage isLoggedIn={isLoggedIn} deleteJob={deleteJob} />}  loader={jobLoader}/>
-        <Route path="jobs/:id/edit" element={<UpdateJobPage updateJobSubmit={updateJob} isLoggedIn={isLoggedIn} />} loader={jobLoader}/>
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="login" element={<LoginPage />} />
+        <Route path="add-job" element={
+          <ProtectedRoute>
+            <AddJobPage addJobSubmit={addJob} />
+          </ProtectedRoute>
+        } />
+        <Route path="jobs/:id" element={<JobPage deleteJob={deleteJob} />} loader={jobLoader} />
+        <Route path="jobs/:id/edit" element={
+          <ProtectedRoute>
+            <UpdateJobPage updateJobSubmit={updateJob} />
+          </ProtectedRoute>
+        } loader={jobLoader} />
         <Route path="*" element={<NotFoundPage />} />
-        <Route path="register" element={<RegisterPage setIsLoggedIn={setIsLoggedIn}/>} />
-        <Route path="login" element={<LoginPage setIsLoggedIn={setIsLoggedIn}/>} />
       </Route>
     )
   );
 
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 };
 
 export default App;

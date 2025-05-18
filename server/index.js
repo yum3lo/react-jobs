@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
@@ -40,9 +42,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.get('/', (req, res) => {
-  res.json({ status: 'API is running' });
-});
+app.use(cookieParser());
 
 app.post('/register', async (req, res) => {
   const { user, pwd } = req.body;
@@ -66,7 +66,27 @@ app.post('/register', async (req, res) => {
       [user, hashedPassword]
     );
 
-    res.status(200).json({ message: 'Registration successful', user: result.rows[0] });
+    const token = jwt.sign({ 
+      id: result.rows[0].id, 
+      username: result.rows[0].username 
+    },
+      process.env.JWT_SECRET,
+      { 
+        expiresIn: process.env.JWT_EXPIRES_IN
+      }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json({ 
+      message: 'Registration successful', 
+      user: result.rows[0] 
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Registration failed' });
@@ -93,14 +113,78 @@ app.post('/login', async (req, res) => {
 
     if (!isPasswordValid) {
       console.log('Invalid password')
-      return res.status(401).json({ message: 'Invalid username or password' })
+      return res.status(401).json({ 
+        message: 'Invalid username or password' 
+      })
     }
-    res.status(200).json({ message: 'Login successful', user: userResult.rows[0] })
+
+    const token = jwt.sign({ 
+      id: userResult.rows[0].id, 
+      username: userResult.rows[0].username 
+    },
+      process.env.JWT_SECRET,
+      { 
+        expiresIn: process.env.JWT_EXPIRES_IN 
+      }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json({ 
+      message: 'Login successful', 
+      user: userResult.rows[0] 
+    })
   } catch (err) {
     console.error('Login error:', err)
     res.status(500).json({ message: 'Login failed' })
   }
 })
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({ 
+    message: 'Logged out successfully' 
+  });
+});
+
+const authMiddleware = async (req, res, next) => {
+  const token = req.cookies.token;
+  
+  if (!token) {
+    return res.status(401).json({ 
+      message: 'Not authenticated' 
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await pool.query('SELECT id, username FROM users WHERE id = $1', [decoded.id]);
+    
+    if (user.rows.length === 0) {
+      return res.status(401).json({ 
+        message: 'User not found' 
+      });
+    }
+
+    req.user = user.rows[0];
+    next();
+  } catch (err) {
+    return res.status(401).json({ 
+      message: 'Invalid token' 
+    });
+  }
+};
+
+app.get('/auth/check', authMiddleware, (req, res) => {
+  res.json({ 
+    user: req.user 
+  });
+});
 
 app.get('/jobs', async (req, res) => {
   try {
@@ -139,7 +223,7 @@ app.get('/jobs', async (req, res) => {
   }
 });
 
-app.get('/jobs/:id', async (req, res) => {
+app.get('/jobs/:id', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT * FROM jobs WHERE id = $1',
@@ -171,7 +255,7 @@ app.get('/jobs/:id', async (req, res) => {
   }
 });
 
-app.post('/jobs', async (req, res) => {
+app.post('/jobs', authMiddleware, async (req, res) => {
   try {
     const { 
       title, 
@@ -219,7 +303,7 @@ app.post('/jobs', async (req, res) => {
   }
 });
 
-app.delete('/jobs/:id', async (req, res) => {
+app.delete('/jobs/:id',authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
       'DELETE FROM jobs WHERE id = $1 RETURNING *',
@@ -243,7 +327,7 @@ app.delete('/jobs/:id', async (req, res) => {
   }
 });
 
-app.put('/jobs/:id', async (req, res) => {
+app.put('/jobs/:id',authMiddleware, async (req, res) => {
   try {
     const { 
       title, 

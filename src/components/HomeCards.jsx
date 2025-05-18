@@ -1,7 +1,9 @@
 import Card from "./Card";
 import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
-const HomeCards = ({ isLoggedIn }) => {
+const HomeCards = () => {
+  const { authState } = useAuth();
   return (
     <section className="py-8">
       <div className="container-xl lg:container m-auto">
@@ -28,7 +30,7 @@ const HomeCards = ({ isLoggedIn }) => {
               List your job to find the perfect developer for the role
             </p>
             <Link
-              to={isLoggedIn ? "/add-job" : "/login"}
+              to={authState.isLoggedIn ? "/add-job" : "/login"}
               className="inline-block bg-[var(--hover)] text-[var(--text)] rounded-lg px-4 py-2 hover:bg-[var(--background)]"
             >
               Add Job

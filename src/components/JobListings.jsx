@@ -53,6 +53,8 @@ const JobListings = ({ isHome = false, filters = {} }) => {
     return result;
   }, [jobs, filters]);
 
+  if (loading) return <Spinner loading={true} />;
+
   return (
     <section className="bg-[var(--hover)] w-full p-8">
       <div className="container-xl lg:container m-auto">
@@ -60,24 +62,18 @@ const JobListings = ({ isHome = false, filters = {} }) => {
           {isHome ? "Recent Jobs" : "Browse Jobs"}
         </h2>
         
-        {loading ? (
-          <Spinner loading={loading} />
+        {filteredJobs.length === 0 ? (
+          <p className="text-center text-[var(--background)] py-10">
+            {jobs.length === 0 
+              ? "No jobs available" 
+              : "No jobs match your filters"}
+          </p>
         ) : (
-          <>
-            {filteredJobs.length === 0 ? (
-              <p className="text-center text-[var(--background)] py-10">
-                {jobs.length === 0 
-                  ? "No jobs available" 
-                  : "No jobs match your filters"}
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredJobs.map(job => (
-                  <JobListing key={job.id} job={job} />
-                ))}
-              </div>
-            )}
-          </>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredJobs.map(job => (
+              <JobListing key={job.id} job={job} />
+            ))}
+          </div>
         )}
       </div>
     </section>

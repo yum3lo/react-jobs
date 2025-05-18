@@ -2,12 +2,14 @@ import Hero from "../components/Hero";
 import HomeCards from "../components/HomeCards";
 import JobListings from "../components/JobListings";
 import ViewAllJobs from "../components/ViewAllJobs";
+import { useAuth } from "../contexts/AuthContext";
 
-const HomePage = ({ isLoggedIn }) => {
+const HomePage = () => {
+  const { authState } = useAuth();
   return (
     <>
       <Hero />
-      <HomeCards isLoggedIn={isLoggedIn}/>
+      <HomeCards authState={authState}/>
       <JobListings isHome={true} />
       <ViewAllJobs />
     </>

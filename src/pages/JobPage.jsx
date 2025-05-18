@@ -1,11 +1,13 @@
 import { useLoaderData, useNavigate, Link } from "react-router-dom"
 import { FaArrowLeft, FaMapMarker } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { useAuth } from "../contexts/AuthContext";
 import { API_BASE_URL } from "../config";
 
-const JobPage = ({deleteJob, isLoggedIn}) => {
+const JobPage = ({ deleteJob }) => {
   const navigate = useNavigate();
   const job = useLoaderData();
+  const { authState } = useAuth();
   
   const onDeleteClick = async (jobId) => {
     const confirm = window.confirm('Are you sure you want to delete this job?');
@@ -81,7 +83,7 @@ const JobPage = ({deleteJob, isLoggedIn}) => {
               </div>
 
               <div className="bg-[var(--background)] p-6 rounded-lg shadow-md mt-6 text-center">
-                {isLoggedIn ? (
+                {authState.isLoggedIn ? (
                   <>
                     <h3 className="text-xl font-bold mb-6">
                       Manage Job

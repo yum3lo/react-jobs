@@ -2,13 +2,14 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaInfoCircle } from "react-icons/fa";
-import { API_BASE_URL } from '../config';
+import { useAuth } from "../contexts/AuthContext";
 
 const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/
 
-const RegisterPage = ({ setIsLoggedIn }) => {
+const RegisterPage = () => {
   const userRef = useRef();
+  const { register } = useAuth();
 
   const [user, setUser] = useState('');
   const [validName, setValidName] = useState(false);
@@ -28,16 +29,12 @@ const RegisterPage = ({ setIsLoggedIn }) => {
 
   useEffect(() => {
     const result = USER_REGEX.test(user);
-    console.log(result);
-    console.log(user);
     setValidName(result);
   }, [user]);
 
   // every time the pwd changes, the matchPwd will be checked
   useEffect(() => {
     const result = PWD_REGEX.test(pwd);
-    console.log(result);
-    console.log(pwd);
     setValidPwd(result);
     const match = pwd === matchPwd;
     setValidMatchPwd(match);
@@ -57,21 +54,12 @@ const RegisterPage = ({ setIsLoggedIn }) => {
     const toastId = toast.loading('Registering...');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/register`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ user, pwd })
-      });
-  
-      const data = await response.json();
-  
-      if (!response.ok) {
-        throw new Error(data.message || `HTTP ${response.status}`);
+      const result = await register(user, pwd);
+      
+      if (!result.success) {
+        throw new Error(result.error);
       }
-  
+
       toast.update(toastId, {
         render: 'Registration successful!',
         type: 'success',
@@ -79,7 +67,6 @@ const RegisterPage = ({ setIsLoggedIn }) => {
         autoClose: 2000
       });
 
-      setIsLoggedIn(true);
       navigate('/');
     } catch (err) {
       toast.update(toastId, {

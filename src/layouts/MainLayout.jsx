@@ -3,15 +3,15 @@ import Navbar from "../components/Navbar";
 import Preloader from "../components/Preloader";
 import { ToastContainer } from "react-toastify";
 import Footer from "../components/Footer";
+import { useAuth } from "../contexts/AuthContext";
 import "react-toastify/dist/ReactToastify.css";
 
-const MainLayout = ({ isLoggedIn, setIsLoggedIn }) => {
+const MainLayout = () => {
+  const { authState } = useAuth();
   return (
     <>
-      <Preloader/>
-      <div className="h-[80px]">
-        <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
-      </div>
+      {authState.isLoading && <Preloader />}
+      <div className="h-[80px]"><Navbar /></div>
       <Outlet />
       <Footer />
       <ToastContainer />
