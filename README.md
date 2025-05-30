@@ -1,6 +1,6 @@
 # React Jobs
 
-React Jobs is a web application that allows users to browse job listings with advanced filtering capabilities. Once signed up or logged in, users can add, edit, or delete job postings. The project features a Vite-powered React frontend and a Node.js/Express backend with PostgreSQL database.
+React Jobs is a web application that allows users to browse job listings with advanced filtering capabilities. Users can register as either job seekers or job posters, with different permissions. Job posters can add, edit, or delete job postings, while job seekers can browse and search for jobs. The project features a Vite-powered React frontend and a Node.js/Express backend with PostgreSQL database.
 
 ---
 
@@ -9,10 +9,12 @@ React Jobs is a web application that allows users to browse job listings with ad
 - **Browse Job Listings with Filtering**
   - Filter by location, job type, and salary range
   - Dynamic search functionality
-- **User Authentication**
-  - Secure signup/login with password hashing
+- **Role-Based User Authentication**
+  - Register as a job seeker or job poster
+  - Different permissions based on user role
+  - Secure signup/login with password hashing and JWT
   - Protected routes for authenticated actions
-- **Manage Job Postings** (for logged-in users)
+- **Manage Job Postings** (for job posters only)
   - Add a new job posting
   - Edit existing job postings
   - Delete job postings
@@ -20,6 +22,7 @@ React Jobs is a web application that allows users to browse job listings with ad
   - Dark/Light mode (persisted in localStorage)
   - Responsive design for all devices
   - Toast notifications for user feedback
+  - Access control with appropriate error pages
 - **Deployment Ready**
   - Backend hosted on Render
   - Optimized production builds with Vite
@@ -33,7 +36,7 @@ React Jobs is a web application that allows users to browse job listings with ad
 - **React Router**: For handling client-side routing.
 - **Tailwind CSS**: A utility-first CSS framework for styling.
 - **fetch**: For making HTTP requests to the backend.
-- **React Icons**: For using icons like FaArrowLeft, FaMapMarker, etc.
+- **React Icons**: For using icons throughout the application.
 - **React Toastify**: For displaying toast notifications.
 - **Vite**: For ultra-fast development
 
@@ -41,6 +44,7 @@ React Jobs is a web application that allows users to browse job listings with ad
 - **Node.js**: A JavaScript runtime for building the backend.
 - **Express**: A web framework for Node.js.
 - **PostgreSQL**: A relational database for storing job and user data.
+- **JWT**: JSON Web Tokens for secure authentication and authorization.
 - **bcrypt**: For hashing passwords.
 - **CORS**: For enabling cross-origin resource sharing.
 

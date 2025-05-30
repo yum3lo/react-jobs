@@ -1,7 +1,16 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaExclamationTriangle } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
 
 const UnauthorizedPage = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleRegisterJobPoster = () => {
+    logout();
+    window.location.href = '/register';
+  };
+
   return (
     <section className="bg-[var(--hover)] text-center flex flex-col justify-center items-center h-[calc(100vh-4rem)]">
       <FaExclamationTriangle className="text-[var(--red)] text-6xl mb-4" />
@@ -19,12 +28,12 @@ const UnauthorizedPage = () => {
         >
           Go Home
         </Link>
-        <Link
-          to="/register"
+        <button
+          onClick={handleRegisterJobPoster}
           className="text-[var(--text)] border border-[var(--text)] hover:bg-[var(--background)] rounded-md px-3 py-2"
         >
           Register as Job Poster
-        </Link>
+        </button>
       </div>
     </section>
   );
