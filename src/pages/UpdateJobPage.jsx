@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { toast } from "react-toastify"
 import { FaStarOfLife } from "react-icons/fa"
 
-const EditJobPage = ({ updateJobSubmit, isLoggedIn }) => {
+const EditJobPage = ({ updateJobSubmit }) => {
   const job = useLoaderData();
   const [title, setTitle] = useState(job.title)
   const [type, setType] = useState(job.type)
@@ -38,12 +38,6 @@ const EditJobPage = ({ updateJobSubmit, isLoggedIn }) => {
     toast.success('Job updated successfully!')
     return navigate(`/jobs/${id}`)
   }
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate('/login')
-    }
-  }, [isLoggedIn, navigate])
 
   return (
     <>

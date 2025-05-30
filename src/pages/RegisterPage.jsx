@@ -3,11 +3,13 @@ import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaInfoCircle } from "react-icons/fa";
 import { API_BASE_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 
 const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/
 
-const RegisterPage = ({ setIsLoggedIn }) => {
+const RegisterPage = () => {
+  const { register } = useAuth();
   const userRef = useRef();
 
   const [user, setUser] = useState('');
@@ -57,30 +59,19 @@ const RegisterPage = ({ setIsLoggedIn }) => {
     const toastId = toast.loading('Registering...');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/register`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ user, pwd })
-      });
-  
-      const data = await response.json();
-  
-      if (!response.ok) {
-        throw new Error(data.message || `HTTP ${response.status}`);
+      const result = await register(user, pwd);
+      
+      if (result.success) {
+        toast.update(toastId, {
+          render: 'Registration successful!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 2000
+        });
+        navigate('/');
+      } else {
+        throw new Error(result.message || 'Registration failed');
       }
-  
-      toast.update(toastId, {
-        render: 'Registration successful!',
-        type: 'success',
-        isLoading: false,
-        autoClose: 2000
-      });
-
-      setIsLoggedIn(true);
-      navigate('/');
     } catch (err) {
       toast.update(toastId, {
         render: err.message || 'Registration failed!',

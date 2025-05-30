@@ -1,10 +1,15 @@
 import { useRef, useState, useEffect } from "react";
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaInfoCircle } from "react-icons/fa";
 import { API_BASE_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 
-const LoginPage = ({ setIsLoggedIn }) => {
+const LoginPage = () => {
+  const { login } = useAuth();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+  
   const userRef = useRef();
 
   const [user, setUser] = useState('');
@@ -33,30 +38,20 @@ const LoginPage = ({ setIsLoggedIn }) => {
     const toastId = toast.loading('Logging in...');
     
     try {
-      const response = await fetch(`${API_BASE_URL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ user, pwd })
-      })
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      toast.update(toastId, {
-        render: 'Login successful!',
-        type: 'success',
-        isLoading: false,
-        autoClose: 2000
-      });
+      const result = await login(user, pwd);
       
-      setIsLoggedIn(true);
-      navigate('/');
+      if (result.success) {
+        toast.update(toastId, {
+          render: 'Login successful!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 2000
+        });
+        
+        navigate(from, { replace: true });
+      } else {
+        throw new Error(result.message || 'Login failed');
+      }
     } catch (err) {
       toast.update(toastId, {
         render: err.message || 'Login failed!',

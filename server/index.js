@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
@@ -40,8 +41,114 @@ app.use(cors({
   credentials: true
 }));
 
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { id: user.id, username: user.username }, 
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: '15m' }
+  );
+};
+
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    { id: user.id, username: user.username }, 
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: '7d' }
+  );
+};
+
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ message: 'Access token required' });
+  }
+  
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid or expired token' });
+    }
+    
+    req.user = user;
+    next();
+  });
+};
+
 app.get('/', (req, res) => {
   res.json({ status: 'API is running' });
+});
+
+app.post('/login', async (req, res) => {
+  const { user, pwd } = req.body;
+
+  try {
+    const userResult = await pool.query(
+      'SELECT * FROM users WHERE username = $1', 
+      [user]
+    );
+    
+    if (userResult.rows.length === 0) {
+      console.log('User not found');
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+    
+    const hashedPassword = userResult.rows[0].password;
+    const isPasswordValid = await bcrypt.compare(pwd, hashedPassword);
+
+    console.log('Password comparison result:', isPasswordValid);
+
+    if (!isPasswordValid) {
+      console.log('Invalid password');
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+    
+    const userObj = {
+      id: userResult.rows[0].id,
+      username: userResult.rows[0].username
+    };
+    
+    const accessToken = generateAccessToken(userObj);
+    const refreshToken = generateRefreshToken(userObj);
+    
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      
+      await client.query(
+        'UPDATE users SET refresh_token = $1 WHERE id = $2',
+        [refreshToken, userResult.rows[0].id]
+      );
+      
+      const verifyUpdate = await client.query(
+        'SELECT refresh_token FROM users WHERE id = $1',
+        [userResult.rows[0].id]
+      );
+      
+      if (!verifyUpdate.rows[0]?.refresh_token) {
+        console.error('Token update failed - still NULL after update');
+        throw new Error('Failed to store refresh token');
+      }
+      
+      await client.query('COMMIT');
+      console.log('Refresh token successfully stored for user:', userResult.rows[0].id);
+    } catch (tokenError) {
+      await client.query('ROLLBACK');
+      console.error('Transaction error:', tokenError);
+    } finally {
+      client.release();
+    }
+
+    res.status(200).json({ 
+      message: 'Login successful', 
+      user: userObj,
+      accessToken,
+      refreshToken
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Login failed' });
+  }
 });
 
 app.post('/register', async (req, res) => {
@@ -57,50 +164,114 @@ app.post('/register', async (req, res) => {
     }
 
     // hashing the password
-    const hashedPassword = await bcrypt.hash(pwd, 10)
-    console.log('Hashed password:', hashedPassword)
-
+    const hashedPassword = await bcrypt.hash(pwd, 10);
+    
     // inserts the new user into the database
     const result = await pool.query(
       'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
       [user, hashedPassword]
     );
 
-    res.status(200).json({ message: 'Registration successful', user: result.rows[0] });
+    const userObj = {
+      id: result.rows[0].id,
+      username: result.rows[0].username
+    };
+    
+    const accessToken = generateAccessToken(userObj);
+    const refreshToken = generateRefreshToken(userObj);
+    
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      
+      await client.query(
+        'UPDATE users SET refresh_token = $1 WHERE id = $2',
+        [refreshToken, result.rows[0].id]
+      );
+      
+      const verifyUpdate = await client.query(
+        'SELECT refresh_token FROM users WHERE id = $1',
+        [result.rows[0].id]
+      );
+      
+      if (!verifyUpdate.rows[0]?.refresh_token) {
+        console.error('Token update failed during registration - still NULL after update');
+        throw new Error('Failed to store refresh token');
+      }
+      
+      await client.query('COMMIT');
+      console.log('Refresh token successfully stored during registration for user:', result.rows[0].id);
+    } catch (tokenError) {
+      await client.query('ROLLBACK');
+      console.error('Registration transaction error:', tokenError);
+    } finally {
+      client.release();
+    }
+    
+    res.status(200).json({ 
+      message: 'Registration successful', 
+      user: userObj,
+      accessToken,
+      refreshToken
+    });
   } catch (err) {
-    console.error(err);
+    console.error('Registration error:', err);
     res.status(500).json({ message: 'Registration failed' });
   }
 });
 
-app.post('/login', async (req, res) => {
-  const { user, pwd } = req.body;
-
-  try {
-    const userResult = await pool.query(
-      'SELECT * FROM users WHERE username = $1', 
-      [user]
-    )
-    if (userResult.rows.length === 0) {
-      console.log('User not found')
-      return res.status(401).json({ message: 'Invalid username or password'})
-    }
-    // compares the hashed password
-    const hashedPassword = userResult.rows[0].password
-    const isPasswordValid = await bcrypt.compare(pwd, hashedPassword)
-
-    console.log('Password comparison result:', isPasswordValid)
-
-    if (!isPasswordValid) {
-      console.log('Invalid password')
-      return res.status(401).json({ message: 'Invalid username or password' })
-    }
-    res.status(200).json({ message: 'Login successful', user: userResult.rows[0] })
-  } catch (err) {
-    console.error('Login error:', err)
-    res.status(500).json({ message: 'Login failed' })
+app.post('/refresh-token', async (req, res) => {
+  const { refreshToken } = req.body;
+  
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token required' });
   }
-})
+  
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    
+    const result = await pool.query(
+      'SELECT * FROM users WHERE id = $1 AND refresh_token = $2',
+      [decoded.id, refreshToken]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(403).json({ message: 'Invalid refresh token' });
+    }
+    
+    const userObj = {
+      id: result.rows[0].id,
+      username: result.rows[0].username
+    };
+    
+    const accessToken = generateAccessToken(userObj);
+    
+    res.json({ accessToken });
+  } catch (err) {
+    console.error('Token refresh error:', err);
+    res.status(403).json({ message: 'Invalid or expired refresh token' });
+  }
+});
+
+app.post('/logout', async (req, res) => {
+  const { refreshToken } = req.body;
+  
+  if (!refreshToken) {
+    return res.status(204).end();
+  }
+  
+  try {
+    await pool.query(
+      'UPDATE users SET refresh_token = NULL WHERE refresh_token = $1',
+      [refreshToken]
+    );
+    
+    res.status(204).end();
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 app.get('/jobs', async (req, res) => {
   try {
@@ -171,7 +342,7 @@ app.get('/jobs/:id', async (req, res) => {
   }
 });
 
-app.post('/jobs', async (req, res) => {
+app.post('/jobs', authenticateToken, async (req, res) => {
   try {
     const { 
       title, 
@@ -219,7 +390,7 @@ app.post('/jobs', async (req, res) => {
   }
 });
 
-app.delete('/jobs/:id', async (req, res) => {
+app.delete('/jobs/:id', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
       'DELETE FROM jobs WHERE id = $1 RETURNING *',
@@ -243,7 +414,7 @@ app.delete('/jobs/:id', async (req, res) => {
   }
 });
 
-app.put('/jobs/:id', async (req, res) => {
+app.put('/jobs/:id', authenticateToken, async (req, res) => {
   try {
     const { 
       title, 

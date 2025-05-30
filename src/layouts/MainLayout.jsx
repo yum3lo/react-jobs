@@ -5,12 +5,12 @@ import { ToastContainer } from "react-toastify";
 import Footer from "../components/Footer";
 import "react-toastify/dist/ReactToastify.css";
 
-const MainLayout = ({ isLoggedIn, setIsLoggedIn }) => {
+const MainLayout = () => {
   return (
     <>
       <Preloader/>
       <div className="h-[80px]">
-        <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+        <Navbar />
       </div>
       <Outlet />
       <Footer />

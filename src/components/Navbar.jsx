@@ -2,9 +2,12 @@ import { NavLink } from "react-router-dom";
 import { FaReact, FaRightFromBracket, FaBars, FaXmark } from "react-icons/fa6";
 import { useState, useEffect } from "react";
 import ThemeToggle from "./ThemeToggle";
+import { useAuth } from "../context/AuthContext";
 
-const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
+const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
+  
   const linkClass = ({ isActive }) => {
     const baseClasses = "rounded-md px-3 py-2 transition-colors duration-100";
     
@@ -13,7 +16,7 @@ const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
     : `${baseClasses} hover:bg-[var(--hover)]`;
   }
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    logout();
     window.location.reload();
   }
 
@@ -59,7 +62,7 @@ const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
               <NavLink to="/jobs" className={linkClass}>
                 Jobs
               </NavLink>
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
                   <NavLink to="/add-job" className={linkClass}>
                     Add Job
@@ -101,7 +104,7 @@ const Navbar = ({isLoggedIn, setIsLoggedIn}) => {
               >
                 Jobs
               </NavLink>
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
                   <NavLink 
                     to="/add-job" 

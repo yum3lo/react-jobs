@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { FaStarOfLife } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { useAuth } from '../context/AuthContext'
 
-const AddJobPage = ({ addJobSubmit, isLoggedIn }) => {
+const AddJobPage = ({ addJobSubmit }) => {
   const [title, setTitle] = useState('')
   const [type, setType] = useState('Full-Time')
   const [location, setLocation] = useState('')
@@ -35,12 +36,6 @@ const AddJobPage = ({ addJobSubmit, isLoggedIn }) => {
     toast.success('Job added successfully!')
     return navigate('/jobs')
   }
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate('/login')
-    }
-  }, [isLoggedIn, navigate])
 
   return (
     <>
