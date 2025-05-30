@@ -14,6 +14,7 @@ import AddJobPage from "./pages/AddJobPage";
 import UpdateJobPage from "./pages/UpdateJobPage";
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import './styles/theme.css';
 import { API_BASE_URL } from './config';
@@ -72,7 +73,7 @@ const AppContent = () => {
         <Route 
           path="add-job" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireJobPoster={true}>
               <AddJobPage addJobSubmit={addJob} />
             </ProtectedRoute>
           } 
@@ -81,7 +82,7 @@ const AppContent = () => {
         <Route 
           path="jobs/:id/edit" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireJobPoster={true}>
               <UpdateJobPage updateJobSubmit={updateJob} />
             </ProtectedRoute>
           } 
@@ -89,6 +90,7 @@ const AppContent = () => {
         />
         <Route path="register" element={<RegisterPage />} />
         <Route path="login" element={<LoginPage />} />
+        <Route path="unauthorized" element={<UnauthorizedPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     )

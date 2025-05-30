@@ -1,17 +1,18 @@
 import Card from "./Card";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from '../context/AuthContext';
 
 const HomeCards = () => {
-  const { isAuthenticated } = useAuth();
-
+  const { isAuthenticated, user } = useAuth();
+  const isJobPoster = isAuthenticated && user?.role === 'job_poster';
+  
   return (
     <section className="py-8">
       <div className="container-xl lg:container m-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 rounded-lg">
           <Card>
             <h2 className="text-2xl font-bold text-[var(--red)]">
-              For Developers
+              For Job Seekers
             </h2>
             <p className="mt-2 mb-4">
               Browse our React jobs and start your career today
@@ -31,10 +32,12 @@ const HomeCards = () => {
               List your job to find the perfect developer for the role
             </p>
             <Link
-              to={isAuthenticated ? "/add-job" : "/login"}
+              to={!isAuthenticated ? "/login" : 
+                  isJobPoster ? "/add-job" : "/unauthorized"}
               className="inline-block bg-[var(--hover)] text-[var(--text)] rounded-lg px-4 py-2 hover:bg-[var(--background)]"
             >
-              Add Job
+              {!isAuthenticated ? "Sign In to Post" : 
+               isJobPoster ? "Add Job" : "Job Poster Access Only"}
             </Link>
           </Card>
         </div>

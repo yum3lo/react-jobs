@@ -43,7 +43,7 @@ app.use(cors({
 
 const generateAccessToken = (user) => {
   return jwt.sign(
-    { id: user.id, username: user.username }, 
+    { id: user.id, username: user.username, role: user.role }, 
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: '15m' }
   );
@@ -51,7 +51,7 @@ const generateAccessToken = (user) => {
 
 const generateRefreshToken = (user) => {
   return jwt.sign(
-    { id: user.id, username: user.username }, 
+    { id: user.id, username: user.username, role: user.role }, 
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: '7d' }
   );
@@ -73,6 +73,13 @@ const authenticateToken = (req, res, next) => {
     req.user = user;
     next();
   });
+};
+
+const requireJobPoster = (req, res, next) => {
+  if (req.user.role !== 'job_poster') {
+    return res.status(403).json({ message: 'Access denied. Only job posters can perform this action.' });
+  }
+  next();
 };
 
 app.get('/', (req, res) => {
@@ -105,7 +112,8 @@ app.post('/login', async (req, res) => {
     
     const userObj = {
       id: userResult.rows[0].id,
-      username: userResult.rows[0].username
+      username: userResult.rows[0].username,
+      role: userResult.rows[0].role
     };
     
     const accessToken = generateAccessToken(userObj);
@@ -152,7 +160,12 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  const { user, pwd } = req.body;
+  const { user, pwd, role } = req.body;
+  
+  const validRole = role === 'job_poster' || role === 'job_seeker';
+  if (!validRole) {
+    return res.status(400).json({ message: 'Invalid role selected' });
+  }
   
   try {
     const userExists = await pool.query(
@@ -166,15 +179,16 @@ app.post('/register', async (req, res) => {
     // hashing the password
     const hashedPassword = await bcrypt.hash(pwd, 10);
     
-    // inserts the new user into the database
+    // inserts the new user into the database with role
     const result = await pool.query(
-      'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
-      [user, hashedPassword]
+      'INSERT INTO users (username, password, role) VALUES ($1, $2, $3) RETURNING *',
+      [user, hashedPassword, role]
     );
 
     const userObj = {
       id: result.rows[0].id,
-      username: result.rows[0].username
+      username: result.rows[0].username,
+      role: result.rows[0].role
     };
     
     const accessToken = generateAccessToken(userObj);
@@ -342,7 +356,7 @@ app.get('/jobs/:id', async (req, res) => {
   }
 });
 
-app.post('/jobs', authenticateToken, async (req, res) => {
+app.post('/jobs', authenticateToken, requireJobPoster, async (req, res) => {
   try {
     const { 
       title, 
@@ -390,7 +404,7 @@ app.post('/jobs', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/jobs/:id', authenticateToken, async (req, res) => {
+app.delete('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
   try {
     const result = await pool.query(
       'DELETE FROM jobs WHERE id = $1 RETURNING *',
@@ -414,7 +428,7 @@ app.delete('/jobs/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/jobs/:id', authenticateToken, async (req, res) => {
+app.put('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
   try {
     const { 
       title, 

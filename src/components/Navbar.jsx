@@ -6,8 +6,9 @@ import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
-  
+  const { isAuthenticated, logout, user } = useAuth();
+  const isJobPoster = isAuthenticated && user?.role === 'job_poster';
+
   const linkClass = ({ isActive }) => {
     const baseClasses = "rounded-md px-3 py-2 transition-colors duration-100";
     
@@ -64,9 +65,11 @@ const Navbar = () => {
               </NavLink>
               {isAuthenticated ? (
                 <>
-                  <NavLink to="/add-job" className={linkClass}>
-                    Add Job
-                  </NavLink>
+                  {isJobPoster && (
+                    <NavLink to="/add-job" className={linkClass}>
+                      Add Job
+                    </NavLink>
+                  )}
                   <div className="px-3 py-2 flex">
                     <button onClick={handleLogout}>
                       <FaRightFromBracket className="text-[var(--text)] hover:text-[var(--red)]"/>
@@ -106,13 +109,15 @@ const Navbar = () => {
               </NavLink>
               {isAuthenticated ? (
                 <>
-                  <NavLink 
-                    to="/add-job" 
-                    className={`block ${linkClass({ isActive: false })}`}
-                    onClick={() => setIsMenuOpen(false)}  
-                  >
-                    Add Job
-                  </NavLink>
+                  {isJobPoster && (
+                    <NavLink 
+                      to="/add-job" 
+                      className={`block ${linkClass({ isActive: false })}`}
+                      onClick={() => setIsMenuOpen(false)}  
+                    >
+                      Add Job
+                    </NavLink>
+                  )}
                   <button 
                     onClick={() => {
                       handleLogout();

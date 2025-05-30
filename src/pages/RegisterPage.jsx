@@ -2,7 +2,6 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaInfoCircle } from "react-icons/fa";
-import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 
 const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/
@@ -23,6 +22,8 @@ const RegisterPage = () => {
   const [matchPwd, setMatchPwd] = useState('');
   const [validMatchPwd, setValidMatchPwd] = useState(false);
   const [matchPwdFocus, setMatchPwdFocus] = useState(false);
+  
+  const [role, setRole] = useState('job_seeker');
 
   useEffect(() => {
     userRef.current.focus();
@@ -59,7 +60,7 @@ const RegisterPage = () => {
     const toastId = toast.loading('Registering...');
 
     try {
-      const result = await register(user, pwd);
+      const result = await register(user, pwd, role);
       
       if (result.success) {
         toast.update(toastId, {
@@ -177,6 +178,47 @@ const RegisterPage = () => {
                   <FaInfoCircle className="inline-block mr-1"/>
                   Passwords must match.
                 </p>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-[var(--card)] font-bold mb-2">
+                  I want to:
+                </label>
+                <div className="flex flex-col space-y-3">
+                  <label className="inline-flex items-center p-3 border rounded-lg border-gray-300 bg-[var(--hover)]">
+                    <input
+                      type="radio"
+                      name="role"
+                      value="job_seeker"
+                      checked={role === 'job_seeker'}
+                      onChange={() => setRole('job_seeker')}
+                      className="h-5 w-5 text-[var(--card)]"
+                    />
+                    <div className="ml-3">
+                      <span className="font-medium">Find Jobs</span>
+                      <p className="text-sm text-gray-500">
+                        Register as a job seeker to browse and apply for jobs
+                      </p>
+                    </div>
+                  </label>
+                  
+                  <label className="inline-flex items-center p-3 border rounded-lg border-gray-300 bg-[var(--hover)]">
+                    <input
+                      type="radio"
+                      name="role"
+                      value="job_poster"
+                      checked={role === 'job_poster'}
+                      onChange={() => setRole('job_poster')}
+                      className="h-5 w-5 text-[var(--card)]"
+                    />
+                    <div className="ml-3">
+                      <span className="font-medium">Post Jobs</span>
+                      <p className="text-sm text-gray-500">
+                        Register as an employer to post and manage job listings
+                      </p>
+                    </div>
+                  </label>
+                </div>
               </div>
 
               <button

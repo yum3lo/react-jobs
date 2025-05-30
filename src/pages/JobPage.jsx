@@ -7,7 +7,9 @@ import { useAuth } from "../context/AuthContext";
 const JobPage = ({ deleteJob }) => {
   const navigate = useNavigate();
   const job = useLoaderData();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+
+  const isJobPoster = isAuthenticated && user.role === 'job_poster';
 
   const onDeleteClick = async (jobId) => {
     const confirm = window.confirm('Are you sure you want to delete this job?');
@@ -84,24 +86,31 @@ const JobPage = ({ deleteJob }) => {
 
               <div className="bg-[var(--background)] p-6 rounded-lg shadow-md mt-6 text-center">
                 {isAuthenticated ? (
-                  <>
-                    <h3 className="text-xl font-bold mb-6">
-                      Manage Job
-                    </h3>
-                    <Link
-                      to={`/jobs/${job.id}/edit`}
-                      className="bg-[var(--card)] hover:bg-[var(--text)] text-[var(--background)] text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
-                    >
-                      Edit Job
-                    </Link>
-                    <button
-                      className="bg-[var(--red)] hover:bg-[var(--dark-red)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
-                      onClick={() => onDeleteClick(job.id)}
-                    >
-                      Delete Job
-                    </button>
-                  </>
-                ) :
+                  isJobPoster ? (
+                    <>
+                      <h3 className="text-xl font-bold mb-6">
+                        Manage Job
+                      </h3>
+                      <Link
+                        to={`/jobs/${job.id}/edit`}
+                        className="bg-[var(--card)] hover:bg-[var(--text)] text-[var(--background)] text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
+                      >
+                        Edit Job
+                      </Link>
+                      <button
+                        className="bg-[var(--red)] hover:bg-[var(--dark-red)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
+                        onClick={() => onDeleteClick(job.id)}
+                      >
+                        Delete Job
+                      </button>
+                    </>
+                  ) : (
+                    <div>
+                      <p className="mb-3">To manage job listings you need a job poster account.</p>
+                      <p className="text-sm text-gray-500">You're currently logged in as a job seeker.</p>
+                    </div>
+                  )
+                ) : (
                   <> 
                     <p>To edit or delete the job</p>
                     <div className="inline">
@@ -110,7 +119,7 @@ const JobPage = ({ deleteJob }) => {
                       <Link to={'/login'} className="underline text-[var(--red)]">Sign in</Link>
                     </div>
                   </>
-                }
+                )}
               </div>
             </aside>
           </div>

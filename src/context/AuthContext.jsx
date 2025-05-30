@@ -84,15 +84,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (user, pwd) => {
+  const register = async (user, pwd, role) => {
     try {
       const response = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ user, pwd })
+        body: JSON.stringify({ user, pwd, role })
       });
 
       const data = await response.json();
@@ -181,6 +181,10 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
+  const isJobPoster = () => {
+    return user?.role === 'job_poster';
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -188,7 +192,8 @@ export const AuthProvider = ({ children }) => {
       isLoading, 
       login, 
       logout, 
-      register, 
+      register,
+      isJobPoster,
       authenticatedRequest 
     }}>
       {children}
