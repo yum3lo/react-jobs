@@ -32,6 +32,33 @@ pool.query('SELECT NOW()', (err, res) => {
     console.error('Database connection error:', err);
   } else {
     console.log('Database connected successfully');
+    
+    pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name='jobs' AND column_name='user_id'
+    `).then(result => {
+      if (result.rows.length === 0) {
+        console.log('Adding user_id column to jobs table...');
+        return pool.query('ALTER TABLE jobs ADD COLUMN user_id INTEGER');
+      }
+    }).then(() => {
+      return pool.query(`
+        UPDATE jobs SET user_id = (SELECT MIN(id) FROM users WHERE role = 'job_poster')
+        WHERE user_id IS NULL
+      `);
+    }).then(() => {
+      return pool.query(`
+        ALTER TABLE jobs ADD CONSTRAINT fk_jobs_users
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      `).catch(err => {
+        console.log('Foreign key constraint may already exist:', err.message);
+      });
+    }).then(() => {
+      console.log('Jobs table updated successfully');
+    }).catch(err => {
+      console.error('Error updating jobs table:', err);
+    });
   }
 });
 
@@ -343,6 +370,7 @@ app.get('/jobs/:id', async (req, res) => {
       description: job.description,
       location: job.location,
       salary: job.salary,
+      user_id: job.user_id,
       company: {
         name: job.company_name,
         description: job.company_description,
@@ -367,12 +395,15 @@ app.post('/jobs', authenticateToken, requireJobPoster, async (req, res) => {
       company 
     } = req.body;
     
+    const userId = req.user.id;
+    
     const result = await pool.query(
       `INSERT INTO jobs (
         title, type, description, location, salary,
-        company_name, company_description, company_contact_email, company_contact_phone
+        company_name, company_description, company_contact_email, company_contact_phone,
+        user_id
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
       ) RETURNING *`,
       [
         title,
@@ -383,7 +414,8 @@ app.post('/jobs', authenticateToken, requireJobPoster, async (req, res) => {
         company.name,
         company.description,
         company.contactEmail,
-        company.contactPhone
+        company.contactPhone,
+        userId
       ]
     );
     
@@ -396,7 +428,8 @@ app.post('/jobs', authenticateToken, requireJobPoster, async (req, res) => {
         description: newJob.company_description,
         contactEmail: newJob.company_contact_email,
         contactPhone: newJob.company_contact_phone
-      }
+      },
+      user_id: newJob.user_id
     });
   } catch (err) {
     console.error('Error creating job:', err);
@@ -406,30 +439,62 @@ app.post('/jobs', authenticateToken, requireJobPoster, async (req, res) => {
 
 app.delete('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
   try {
-    const result = await pool.query(
-      'DELETE FROM jobs WHERE id = $1 RETURNING *',
-      [req.params.id]
+    const jobId = req.params.id;
+    const userId = req.user.id;
+    
+    const jobCheck = await pool.query(
+      'SELECT * FROM jobs WHERE id = $1',
+      [jobId]
     );
     
-    if (result.rows.length === 0) {
-      return res.status(404).json({ 
-        error: 'Job not found' 
-      });
+    if (jobCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Job not found' });
     }
     
+    // delete only if user owns the job or is an admin
+    if (jobCheck.rows[0].user_id !== userId) {
+      console.error(`Permission denied: User ${userId} tried to delete job ${jobId} owned by ${jobCheck.rows[0].user_id}`);
+      return res.status(403).json({ error: 'You do not have permission to delete this job listing' });
+    }
+    
+    const result = await pool.query(
+      'DELETE FROM jobs WHERE id = $1 RETURNING *',
+      [jobId]
+    );
+    
     res.json({ 
-      message: 'Job deleted successfully'
+      message: 'Job deleted successfully',
+      id: result.rows[0].id
     });
   } catch (err) {
     console.error('Delete error:', err);
     res.status(500).json({ 
-      error: 'Failed to delete job' 
+      error: 'Failed to delete job',
+      details: err.message
     });
   }
 });
 
 app.put('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
   try {
+    const jobId = req.params.id;
+    const userId = req.user.id;
+    
+    const jobCheck = await pool.query(
+      'SELECT * FROM jobs WHERE id = $1',
+      [jobId]
+    );
+
+    if (jobCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    // update only if user owns the job or is an admin
+    if (jobCheck.rows[0].user_id !== userId) {
+      console.error(`Permission denied: User ${userId} tried to update job ${jobId} owned by ${jobCheck.rows[0].user_id}`);
+      return res.status(403).json({ error: 'You do not have permission to update this job listing' });
+    }
+    
     const { 
       title, 
       type, 
@@ -462,13 +527,9 @@ app.put('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
         company.description,
         company.contactEmail,
         company.contactPhone,
-        req.params.id
+        jobId
       ]
     );
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Job not found' });
-    }
     
     const updatedJob = result.rows[0];
     res.json({
@@ -479,11 +540,48 @@ app.put('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
         description: updatedJob.company_description,
         contactEmail: updatedJob.company_contact_email,
         contactPhone: updatedJob.company_contact_phone
+      },
+      user_id: updatedJob.user_id
+    });
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).json({ 
+      error: 'Failed to update job',
+      details: err.message
+    });
+  }
+});
+
+app.get('/jobs/:id', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM jobs WHERE id = $1',
+      [req.params.id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+    
+    const job = result.rows[0];
+    res.json({
+      id: job.id,
+      title: job.title,
+      type: job.type,
+      description: job.description,
+      location: job.location,
+      salary: job.salary,
+      user_id: job.user_id,
+      company: {
+        name: job.company_name,
+        description: job.company_description,
+        contactEmail: job.company_contact_email,
+        contactPhone: job.company_contact_phone
       }
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update job' });
+    res.status(500).json({ error: 'Failed to fetch job' });
   }
 });
 

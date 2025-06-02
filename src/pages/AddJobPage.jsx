@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { FaStarOfLife } from 'react-icons/fa'
-import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import { useJobContext } from '../context/JobContext'
 
-const AddJobPage = ({ addJobSubmit }) => {
+const AddJobPage = () => {
+  const { addJob } = useJobContext()
   const [title, setTitle] = useState('')
   const [type, setType] = useState('Full-Time')
   const [location, setLocation] = useState('')
@@ -14,10 +15,9 @@ const AddJobPage = ({ addJobSubmit }) => {
   const [companyDescription, setCompanyDescription] = useState('')
   const [contactEmail, setContactEmail] = useState('')
   const [contactPhone, setContactPhone] = useState('')
-
   const navigate = useNavigate()
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault();
     const newJob = {
       title,
@@ -32,9 +32,15 @@ const AddJobPage = ({ addJobSubmit }) => {
         contactPhone
       }
     }
-    addJobSubmit(newJob)
-    toast.success('Job added successfully!')
-    return navigate('/jobs')
+    
+    try {
+      await addJob(newJob);
+      toast.success('Job added successfully!');
+      navigate('/jobs');
+    } catch (error) {
+      console.error('Error submitting job:', error);
+      toast.error(`Error: ${error.message || 'Failed to add job'}`);
+    }
   }
 
   return (

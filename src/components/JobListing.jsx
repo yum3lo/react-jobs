@@ -44,6 +44,7 @@ const JobListing = ({ job }) => {
           </div>
           <Link
             to={`/jobs/${job.id}`}
+            state={{ jobData: job }}
             className="h-[36px] bg-[var(--text)] hover:bg-[var(--card)] text-[var(--background)] p-2 rounded-lg text-center text-sm"
           >
             Read More

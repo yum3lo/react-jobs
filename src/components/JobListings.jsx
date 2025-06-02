@@ -1,37 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
 import Spinner from "./Spinner";
 import JobListing from "./JobListing";
-import { API_BASE_URL } from "../config";
+import { useJobContext } from '../context/JobContext';
 
 const JobListings = ({ isHome = false, filters = {} }) => {
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  const { jobs, loading, error, fetchJobs } = useJobContext();
+  
   useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const apiUrl = isHome ? `${API_BASE_URL}/jobs?_limit=3` : `${API_BASE_URL}/jobs`;
-        const res = await fetch(apiUrl);
-        
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        
-        const data = await res.json();
-        const receivedJobs = Array.isArray(data) ? data : (data.jobs || []);
-        
-        setJobs(receivedJobs);
-      } catch (error) {
-        console.error("Error fetching jobs:", error);
-        setJobs([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchJobs();
-  }, [isHome]);
-
+    if (isHome) {
+      fetchJobs({ limit: 3 });
+    } else {
+      fetchJobs();
+    }
+  }, [isHome, fetchJobs]);
+  
   const filteredJobs = useMemo(() => {
     if (!jobs.length) return [];
     let result = [...jobs];
@@ -62,6 +44,10 @@ const JobListings = ({ isHome = false, filters = {} }) => {
         
         {loading ? (
           <Spinner loading={loading} />
+        ) : error ? (
+          <p className="text-center text-[var(--red)] py-10">
+            Error loading jobs: {error}
+          </p>
         ) : (
           <>
             {filteredJobs.length === 0 ? (

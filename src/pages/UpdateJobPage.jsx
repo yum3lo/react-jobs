@@ -2,9 +2,11 @@ import { useParams, useLoaderData, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { toast } from "react-toastify"
 import { FaStarOfLife } from "react-icons/fa"
+import { useJobContext } from '../context/JobContext';
 
-const EditJobPage = ({ updateJobSubmit }) => {
+const EditJobPage = () => {
   const job = useLoaderData();
+  const { updateJob } = useJobContext();
   const [title, setTitle] = useState(job.title)
   const [type, setType] = useState(job.type)
   const [location, setLocation] = useState(job.location)
@@ -18,7 +20,7 @@ const EditJobPage = ({ updateJobSubmit }) => {
   const navigate = useNavigate()
   const { id } = useParams();
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault();
     const updatedJob = {
       id,
@@ -34,9 +36,15 @@ const EditJobPage = ({ updateJobSubmit }) => {
         contactPhone
       }
     }
-    updateJobSubmit(updatedJob)
-    toast.success('Job updated successfully!')
-    return navigate(`/jobs/${id}`)
+    
+    try {
+      await updateJob(updatedJob);
+      toast.success('Job updated successfully!');
+      navigate(`/jobs/${id}`);
+    } catch (error) {
+      console.error('Error updating job:', error);
+      toast.error(`Error: ${error.message || 'Failed to update job'}`);
+    }
   }
 
   return (

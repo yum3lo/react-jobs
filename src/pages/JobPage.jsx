@@ -1,15 +1,36 @@
 import { useLoaderData, useNavigate, Link } from "react-router-dom"
 import { FaArrowLeft, FaMapMarker } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { API_BASE_URL } from "../config";
 import { useAuth } from "../context/AuthContext";
+import { useJobContext } from "../context/JobContext";
 
-const JobPage = ({ deleteJob }) => {
+const JobPage = () => {
+  const { deleteJob } = useJobContext();
+  const rawJobData = useLoaderData();
   const navigate = useNavigate();
-  const job = useLoaderData();
   const { isAuthenticated, user } = useAuth();
+  
+  // because of 2 different formats of getting job data
+  const normalizeJobData = (jobData) => {
+    if (jobData.company && typeof jobData.company === 'object') {
+      return jobData;
+    }
+  
+    return {
+      ...jobData,
+      company: {
+        name: jobData.company_name,
+        description: jobData.company_description,
+        contactEmail: jobData.company_contact_email,
+        contactPhone: jobData.company_contact_phone
+      }
+    };
+  };
 
+  const job = normalizeJobData(rawJobData);
   const isJobPoster = isAuthenticated && user.role === 'job_poster';
+  // check if current user is the job owner
+  const isJobOwner = isAuthenticated && job.user_id === user.id;
 
   const onDeleteClick = async (jobId) => {
     const confirm = window.confirm('Are you sure you want to delete this job?');
@@ -87,23 +108,29 @@ const JobPage = ({ deleteJob }) => {
               <div className="bg-[var(--background)] p-6 rounded-lg shadow-md mt-6 text-center">
                 {isAuthenticated ? (
                   isJobPoster ? (
-                    <>
-                      <h3 className="text-xl font-bold mb-6">
-                        Manage Job
-                      </h3>
-                      <Link
-                        to={`/jobs/${job.id}/edit`}
-                        className="bg-[var(--card)] hover:bg-[var(--text)] text-[var(--background)] text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
-                      >
-                        Edit Job
-                      </Link>
-                      <button
-                        className="bg-[var(--red)] hover:bg-[var(--dark-red)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
-                        onClick={() => onDeleteClick(job.id)}
-                      >
-                        Delete Job
-                      </button>
-                    </>
+                    isJobOwner ? (
+                      <>
+                        <h3 className="text-xl font-bold mb-6">
+                          Manage Job
+                        </h3>
+                        <Link
+                          to={`/jobs/${job.id}/edit`}
+                          className="bg-[var(--card)] hover:bg-[var(--text)] text-[var(--background)] text-center font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
+                        >
+                          Edit Job
+                        </Link>
+                        <button
+                          className="bg-[var(--red)] hover:bg-[var(--dark-red)] text-[var(--background)] font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
+                          onClick={() => onDeleteClick(job.id)}
+                        >
+                          Delete Job
+                        </button>
+                      </>
+                    ) : (
+                      <div>
+                        <p className="mb-3">You can only manage job listings that you created.</p>
+                      </div>
+                    )
                   ) : (
                     <div>
                       <p className="mb-3">To manage job listings you need a job poster account.</p>
@@ -129,10 +156,4 @@ const JobPage = ({ deleteJob }) => {
   )
 }
 
-const jobLoader = async ({params}) => {
-  const res = await fetch(`${API_BASE_URL}/jobs/${params.id}`);
-  const data = await res.json();
-  return data;
-}
-
-export {JobPage as default, jobLoader}
+export {JobPage as default}
