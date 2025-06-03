@@ -47,9 +47,16 @@ React Jobs is a web application that allows users to browse job listings with ad
 - **JWT**: JSON Web Tokens for secure authentication and authorization.
 - **bcrypt**: For hashing passwords.
 - **CORS**: For enabling cross-origin resource sharing.
+- **Swagger**: API documentation and testing interface.
 
 ### Development Tools
 - **Render**: For backend/database hosting
 - **Vite**: A fast build tool for modern web applications.
 - **Postman**: For testing API endpoints.
 - **Git**: For version control.
+
+## API Documentation
+
+The API for this project is fully documented using Swagger UI.
+
+- **Swagger Documentation**: [https://react-jobs-api-rutx.onrender.com/api-docs](https://react-jobs-api-rutx.onrender.com/api-docs)

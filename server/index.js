@@ -4,6 +4,7 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const { swaggerUi, specs } = require('./swagger');
 
 const app = express();
 const PORT = process.env.PORT || 3500;
@@ -67,6 +68,7 @@ app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 const generateAccessToken = (user) => {
   return jwt.sign(
