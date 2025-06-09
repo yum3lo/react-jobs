@@ -5,6 +5,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { swaggerUi, specs } = require('./swagger');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3500;
@@ -69,6 +72,22 @@ app.use(cors({
   credentials: true
 }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function(req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+const upload = multer({ storage });
 
 const generateAccessToken = (user) => {
   return jwt.sign(
@@ -319,15 +338,14 @@ app.post('/logout', async (req, res) => {
 app.get('/jobs', async (req, res) => {
   try {
     let query = 'SELECT * FROM jobs';
-    const limit = req.query._limit;
     const params = [];
     const conditions = [];
-
-    if (limit && !isNaN(limit)) {
-      query += ` LIMIT $${params.length + 1}`; // + 1 for the next parameter index
-      params.push(parseInt(limit));
+    
+    if (req.query.user_id) {
+      conditions.push(`user_id = $${params.length + 1}`);
+      params.push(req.query.user_id);
     }
-
+    
     if (req.query.location) {
       conditions.push(`location ILIKE $${params.length + 1}`);
       params.push(`%${req.query.location}%`);
@@ -341,11 +359,18 @@ app.get('/jobs', async (req, res) => {
       params.push(req.query.salary);
     }
     if (conditions.length > 0) {
-      query = `SELECT * FROM jobs WHERE ${conditions.join(' AND ')}` + (req.query._limit ? ` LIMIT $${params.length + 1}` : '');
+      query = `SELECT * FROM jobs WHERE ${conditions.join(' AND ')}`;
+      
+      if (req.query._limit) {
+        query += ` LIMIT $${params.length + 1}`;
+        params.push(parseInt(req.query._limit));
+      }
+    } else if (req.query._limit) {
+      query += ` LIMIT $${params.length + 1}`;
+      params.push(parseInt(req.query._limit));
     }
-
-    const result = await pool.query(query, params);
     
+    const result = await pool.query(query, params);
     res.json({ jobs: result.rows });
   } catch (err) {
     console.error(err);
@@ -554,38 +579,42 @@ app.put('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
   }
 });
 
-app.get('/jobs/:id', async (req, res) => {
+app.put('/users/profile', authenticateToken, upload.single('profileImage'), async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM jobs WHERE id = $1',
-      [req.params.id]
-    );
+    const userId = req.user.id;
+    let profileImageUrl = null;
     
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Job not found' });
+    if (req.file) {
+      profileImageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      
+      await pool.query(
+        'UPDATE users SET profile_image_url = $1 WHERE id = $2',
+        [profileImageUrl, userId]
+      );
     }
     
-    const job = result.rows[0];
+    const userResult = await pool.query(
+      'SELECT id, username, role, profile_image_url FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
     res.json({
-      id: job.id,
-      title: job.title,
-      type: job.type,
-      description: job.description,
-      location: job.location,
-      salary: job.salary,
-      user_id: job.user_id,
-      company: {
-        name: job.company_name,
-        description: job.company_description,
-        contactEmail: job.company_contact_email,
-        contactPhone: job.company_contact_phone
-      }
+      id: userResult.rows[0].id,
+      username: userResult.rows[0].username,
+      role: userResult.rows[0].role,
+      profileImageUrl: userResult.rows[0].profile_image_url
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch job' });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ message: 'Failed to update profile', details: error.message });
   }
 });
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

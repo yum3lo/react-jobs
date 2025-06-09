@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaMapMarker } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-const JobListing = ({ job }) => {
+const JobListing = ({ job, noShadow = false, border = false }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
 
   let description = job.description;
@@ -16,7 +16,7 @@ const JobListing = ({ job }) => {
   }
 
   return (
-    <div className="bg-[var(--background)] rounded-xl shadow-md relative">
+    <div className={`bg-[var(--background)] rounded-xl ${border ? 'border-2 border-[var(--card)]' : ''} ${noShadow ? '' : 'shadow-md'} relative`}>
       <div className="py-4 px-6">
 
         <div className="mb-6">

@@ -13,6 +13,7 @@ import AddJobPage from "./pages/AddJobPage";
 import UpdateJobPage from "./pages/UpdateJobPage";
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import ProfilePage from './pages/ProfilePage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import './styles/theme.css';
@@ -49,6 +50,12 @@ const AppContent = () => {
         />
         <Route path="register" element={<RegisterPage />} />
         <Route path="login" element={<LoginPage />} />
+        <Route path="profile" element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+          }
+        />
         <Route path="unauthorized" element={<UnauthorizedPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

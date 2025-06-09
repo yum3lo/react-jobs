@@ -185,6 +185,44 @@ export const AuthProvider = ({ children }) => {
     return user?.role === 'job_poster';
   };
 
+  const updateUserProfile = async (formData) => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        throw new Error('Not authenticated');
+      }
+      
+      console.log('Uploading profile image...');
+      
+      const response = await fetch(`${API_BASE_URL}/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error response:', errorData);
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+      
+      const updatedUser = await response.json();
+      console.log('Profile updated successfully:', updatedUser);
+      
+      // updating local state and storage with merging
+      const updatedUserInfo = {...user, ...updatedUser};
+      setUser(updatedUserInfo);
+      localStorage.setItem('user', JSON.stringify(updatedUserInfo));
+      
+      return updatedUser;
+    } catch (error) {
+      console.error('Profile update error:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -194,7 +232,8 @@ export const AuthProvider = ({ children }) => {
       logout, 
       register,
       isJobPoster,
-      authenticatedRequest 
+      authenticatedRequest,
+      updateUserProfile
     }}>
       {children}
     </AuthContext.Provider>

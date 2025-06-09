@@ -10,7 +10,7 @@ const HomeCards = () => {
     <section className="py-8">
       <div className="container-xl lg:container m-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 rounded-lg">
-          <Card>
+          <Card bg="bg-[var(--hover)]">
             <h2 className="text-2xl font-bold text-[var(--red)]">
               For Job Seekers
             </h2>

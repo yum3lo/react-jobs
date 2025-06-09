@@ -136,6 +136,28 @@ export const JobProvider = ({ children }) => {
     return fetchJobById(id);
   };
   
+  const fetchUserJobs = useCallback(async (userId) => {
+    setLoading(true);
+    try {
+      // Make sure userId is a number if your DB expects it that way
+      const res = await fetch(`${API_BASE_URL}/jobs?user_id=${userId}`);
+      
+      if (!res.ok) {
+        throw new Error('Failed to fetch user jobs');
+      }
+      
+      const data = await res.json();
+      // Store the fetched jobs in the context state to avoid refetching
+      const userJobs = data.jobs || [];
+      return userJobs;
+    } catch (error) {
+      console.error('Error fetching user jobs:', error);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  
   return (
     <JobContext.Provider value={{ 
       jobs,
@@ -147,7 +169,8 @@ export const JobProvider = ({ children }) => {
       addJob,
       updateJob,
       deleteJob,
-      getJob
+      getJob,
+      fetchUserJobs
     }}>
       {children}
     </JobContext.Provider>

@@ -3,6 +3,7 @@ import { FaArrowLeft, FaMapMarker } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import { useJobContext } from "../context/JobContext";
+import Card from '../components/Card'
 
 const JobPage = () => {
   const { deleteJob } = useJobContext();
@@ -62,7 +63,7 @@ const JobPage = () => {
         <div className="container m-auto py-10 px-8">
           <div className="grid grid-cols-1 md:grid-cols-70/30 w-full gap-6">
             <main>
-              <div className="bg-[var(--background)] p-4 md:p-6 rounded-lg shadow-md text-center md:text-left">
+              <Card>
                 <div className="text-[var(--card)] mb-4">{job.type}</div>
                 <h1 className="text-2xl md:text-3xl font-bold mb-4">
                   {job.title}
@@ -71,41 +72,31 @@ const JobPage = () => {
                   <FaMapMarker className="inline text-lg mb-1 mr-1" />
                   {job.location}
                 </div>
-              </div>
+              </Card>
 
-              <div className="bg-[var(--background)] p-4 md:p-6 rounded-lg shadow-md mt-6">
+              <Card className="mt-6">
                 <h3 className="text-lg font-bold mb-2">
                   Job Description
                 </h3>
-
                 <p className="mb-4">{job.description}</p>
-
                 <h3 className="text-lg font-bold mb-2">Salary</h3>
-
                 <p>{job.salary} / Year</p>
-              </div>
+              </Card>
             </main>
 
             <aside>
-              <div className="bg-[var(--background)] p-4 md:p-6 rounded-lg shadow-md">
+              <Card>
                 <h3 className="text-xl font-bold mb-4">Company Info</h3>
-
                 <h2 className="text-2xl">{job.company.name}</h2>
-
                 <p className="my-2">{job.company.description}</p>
-
                 <hr className="my-4" />
-
                 <h3 className="text-xl">Contact Email:</h3>
-
                 <p className="my-2 bg-[var(--hover)] p-2 font-bold rounded-lg break-words text-sm">{job.company.contactEmail}</p>
-
                 <h3 className="text-xl">Contact Phone:</h3>
-
                 <p className="my-2 bg-[var(--hover)] p-2 font-bold rounded-lg break-words text-sm">{job.company.contactPhone}</p>
-              </div>
+              </Card>
 
-              <div className="bg-[var(--background)] p-6 rounded-lg shadow-md mt-6 text-center">
+              <Card className="mt-6 text-center">
                 {isAuthenticated ? (
                   isJobPoster ? (
                     isJobOwner ? (
@@ -147,7 +138,7 @@ const JobPage = () => {
                     </div>
                   </>
                 )}
-              </div>
+              </Card>
             </aside>
           </div>
         </div>

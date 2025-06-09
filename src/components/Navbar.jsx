@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { FaReact, FaRightFromBracket, FaBars, FaXmark } from "react-icons/fa6";
+import { FaReact, FaRightFromBracket, FaBars, FaXmark, FaCircleUser } from "react-icons/fa6";
 import { useState, useEffect } from "react";
 import ThemeToggle from "./ThemeToggle";
 import { useAuth } from "../context/AuthContext";
@@ -10,11 +10,11 @@ const Navbar = () => {
   const isJobPoster = isAuthenticated && user?.role === 'job_poster';
 
   const linkClass = ({ isActive }) => {
-    const baseClasses = "rounded-md px-3 py-2 transition-colors duration-100";
+    const baseClasses = "rounded-md px-3 py-2 transition-colors duration-100 hover:bg-[var(--hover)]";
     
     return isActive
-    ? `${baseClasses} border-2 border-[var(--text)] hover:bg-[var(--hover)]`
-    : `${baseClasses} hover:bg-[var(--hover)]`;
+    ? `${baseClasses} border-2 border-[var(--text)]`
+    : `${baseClasses}`;
   }
   const handleLogout = () => {
     logout();
@@ -70,9 +70,13 @@ const Navbar = () => {
                       Add Job
                     </NavLink>
                   )}
+                  <NavLink to="/profile" className={linkClass}>
+                    <FaCircleUser className="inline-block mr-2" />
+                    {user?.username}
+                  </NavLink>
                   <div className="px-3 py-2 flex">
                     <button onClick={handleLogout}>
-                      <FaRightFromBracket className="text-[var(--text)] hover:text-[var(--red)]"/>
+                      <FaRightFromBracket className="hover:text-[var(--red)]"/>
                     </button>
                   </div>
                 </> 
@@ -118,6 +122,15 @@ const Navbar = () => {
                       Add Job
                     </NavLink>
                   )}
+                  <NavLink 
+                    to="/profile" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block w-full text-left ${linkClass({
+                      isActive: false,
+                    })}`}
+                  >
+                    My Profile
+                  </NavLink>
                   <button 
                     onClick={() => {
                       handleLogout();
