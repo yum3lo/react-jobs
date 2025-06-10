@@ -53,20 +53,20 @@ const LoginPage = () => {
       } else {
         throw new Error(result.message || 'Login failed');
       }
-    } catch (err) {
+    } catch (error) {
       toast.update(toastId, {
-        render: err.message || 'Login failed!',
+        render: error.message || 'Login failed!',
         type: 'error',
         isLoading: false,
         autoClose: 2000
       });
-      console.error(err);
+      throw error;
     }
   }
 
   return (
-    <section className="bg-[var(--hover)]">
-      <div className="container m-auto max-w-lg py-12 md:py-24">
+    <section className="bg-[var(--hover)] py-10">
+      <div className="container m-auto max-w-xl px-4">
         <Card>
           <form onSubmit={handleSubmit}>
             <h2 className="text-2xl md:text-3xl text-center font-semibold mb-6">

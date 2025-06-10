@@ -32,16 +32,12 @@ const RegisterPage = () => {
 
   useEffect(() => {
     const result = USER_REGEX.test(user);
-    console.log(result);
-    console.log(user);
     setValidName(result);
   }, [user]);
 
   // every time the pwd changes, the matchPwd will be checked
   useEffect(() => {
     const result = PWD_REGEX.test(pwd);
-    console.log(result);
-    console.log(pwd);
     setValidPwd(result);
     const match = pwd === matchPwd;
     setValidMatchPwd(match);
@@ -74,20 +70,20 @@ const RegisterPage = () => {
       } else {
         throw new Error(result.message || 'Registration failed');
       }
-    } catch (err) {
+    } catch (error) {
       toast.update(toastId, {
-        render: err.message || 'Registration failed!',
+        render: error.message || 'Registration failed!',
         type: 'error',
         isLoading: false,
         autoClose: 2000
       });
-      console.error(err);
+      throw error;
     }
   }
 
   return (
-    <section className="bg-[var(--hover)]">
-      <div className="container m-auto max-w-lg py-12 md:py-24">
+    <section className="bg-[var(--hover)] py-10">
+      <div className="container m-auto max-w-xl px-4">
         <Card>
           <form onSubmit={handleSubmit}>
             <h2 className="text-2xl md:text-3xl text-center font-semibold mb-6">

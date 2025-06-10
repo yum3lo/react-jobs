@@ -16,7 +16,7 @@ const JobListing = ({ job, noShadow = false, border = false }) => {
   }
 
   return (
-    <div className={`bg-[var(--background)] rounded-xl ${border ? 'border-2 border-[var(--card)]' : ''} ${noShadow ? '' : 'shadow-md'} relative`}>
+    <div className={`bg-[var(--background)] rounded-xl ${border ? 'border border-[var(--card)]' : ''} ${noShadow ? '' : 'shadow-md'} relative`}>
       <div className="py-4 px-6">
 
         <div className="mb-6">

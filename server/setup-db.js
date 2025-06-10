@@ -21,7 +21,8 @@ async function setupDatabase() {
         password VARCHAR(100) NOT NULL,
         role VARCHAR(20) NOT NULL DEFAULT 'job_seeker',
         refresh_token TEXT,
-        profile_image_url TEXT
+        profile_image_url TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
     console.log('Created users table');
@@ -36,9 +37,8 @@ async function setupDatabase() {
         salary VARCHAR(50),
         company_name VARCHAR(100),
         company_description TEXT,
-        company_contact_email VARCHAR(100),
-        company_contact_phone VARCHAR(20),
-        user_id INTEGER
+        user_id INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
     console.log('Created jobs table');
@@ -58,9 +58,25 @@ async function setupDatabase() {
       `);
       console.log('Added foreign key constraint to jobs table');
     }
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS applications (
+        id SERIAL PRIMARY KEY,
+        job_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        resume_path TEXT,
+        cover_letter TEXT,
+        status VARCHAR(20) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `);
+    console.log('Created applications table');
+
     client.release();
-  } catch (err) {
-    console.error('Error setting up database:', err);
+  } catch (error) {
+    console.error('Error setting up database:', error);
   } finally {
     await pool.end();
   }

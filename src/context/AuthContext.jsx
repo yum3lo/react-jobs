@@ -41,7 +41,6 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
         setUser(JSON.parse(storedUser));
       } catch (error) {
-        console.error('Authentication error:', error);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
@@ -79,7 +78,6 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true };
     } catch (error) {
-      console.error('Login error:', error);
       return { success: false, message: error.message };
     }
   };
@@ -110,7 +108,6 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true };
     } catch (error) {
-      console.error('Registration error:', error);
       return { success: false, message: error.message };
     }
   };
@@ -127,7 +124,8 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ refreshToken })
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      throw error;
+    
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
@@ -192,8 +190,6 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Not authenticated');
       }
       
-      console.log('Uploading profile image...');
-      
       const response = await fetch(`${API_BASE_URL}/users/profile`, {
         method: 'PUT',
         headers: {
@@ -204,13 +200,11 @@ export const AuthProvider = ({ children }) => {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Error response:', errorData);
         throw new Error(errorData.message || 'Failed to update profile');
       }
-      
+
       const updatedUser = await response.json();
-      console.log('Profile updated successfully:', updatedUser);
-      
+
       // updating local state and storage with merging
       const updatedUserInfo = {...user, ...updatedUser};
       setUser(updatedUserInfo);
@@ -218,7 +212,29 @@ export const AuthProvider = ({ children }) => {
       
       return updatedUser;
     } catch (error) {
-      console.error('Profile update error:', error);
+      throw error;
+    }
+  };
+
+  const deleteUserProfileImage = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const response = await fetch(`${API_BASE_URL}/users/profile/image`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete profile image');
+      }
+
+      const updatedData = await response.json();
+      setUser(updatedData);
+      localStorage.setItem('user', JSON.stringify(updatedData));
+      return updatedData;
+    } catch (error) {
       throw error;
     }
   };
@@ -233,7 +249,8 @@ export const AuthProvider = ({ children }) => {
       register,
       isJobPoster,
       authenticatedRequest,
-      updateUserProfile
+      updateUserProfile,
+      deleteUserProfileImage
     }}>
       {children}
     </AuthContext.Provider>

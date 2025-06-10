@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FaStarOfLife } from 'react-icons/fa'
+import { FaAsterisk } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { useJobContext } from '../context/JobContext'
@@ -14,8 +14,6 @@ const AddJobPage = () => {
   const [salary, setSalary] = useState('Under $50K')
   const [companyName, setCompanyName] = useState('')
   const [companyDescription, setCompanyDescription] = useState('')
-  const [contactEmail, setContactEmail] = useState('')
-  const [contactPhone, setContactPhone] = useState('')
   const navigate = useNavigate()
 
   const submitForm = async (e) => {
@@ -28,9 +26,7 @@ const AddJobPage = () => {
       salary,
       company: {
         name: companyName,
-        description: companyDescription,
-        contactEmail,
-        contactPhone
+        description: companyDescription
       }
     }
     
@@ -39,14 +35,13 @@ const AddJobPage = () => {
       toast.success('Job added successfully!');
       navigate('/jobs');
     } catch (error) {
-      console.error('Error submitting job:', error);
       toast.error(`Error: ${error.message || 'Failed to add job'}`);
     }
   }
 
   return (
-    <section className="bg-[var(--hover)]">
-      <div className="container m-auto max-w-2xl py-12 md:py-24">
+    <section className="bg-[var(--hover)] py-10">
+      <div className="container m-auto px-4">
         <Card>
           <form onSubmit={submitForm}>
             <h2 className="text-2xl md:text-3xl text-center font-semibold mb-6">Add Job</h2>
@@ -54,7 +49,7 @@ const AddJobPage = () => {
             <div className="mb-4">
               <label htmlFor="type" className="block font-bold mb-2">
                 Job Type
-                <FaStarOfLife className="text-[var(--red)] inline-block w-2 ml-1 mt-[-10px]" />
+                <FaAsterisk className="text-[var(--red)] inline-block w-2 ml-1 mt-[-10px]" />
               </label>
               <select
                 id="type"
@@ -74,7 +69,7 @@ const AddJobPage = () => {
             <div className="mb-4">
               <label className="block font-bold mb-2">
                 Job Listing Name 
-                <FaStarOfLife className="text-[var(--red)] inline-block w-2 ml-1 mt-[-10px]" />
+                <FaAsterisk className="text-[var(--red)] inline-block w-2 ml-1 mt-[-10px]" />
               </label>
               <input
                 type="text"
@@ -108,7 +103,7 @@ const AddJobPage = () => {
             <div className="mb-4">
               <label htmlFor="type" className="block font-bold mb-2">
                 Salary
-                <FaStarOfLife className="text-[var(--red)] inline-block w-2 ml-1 mt-[-10px]" />
+                <FaAsterisk className="text-[var(--red)] inline-block w-2 ml-1 mt-[-10px]" />
               </label>
               <select
                 id="salary"
@@ -135,7 +130,7 @@ const AddJobPage = () => {
             <div className='mb-4'>
               <label className='block font-bold mb-2'>
                 Location
-                <FaStarOfLife className="text-[var(--red)] inline-block w-2 ml-1 mt-[-10px]" />
+                <FaAsterisk className="text-[var(--red)] inline-block w-2 ml-1 mt-[-10px]" />
               </label>
               <input
                 type="text"
@@ -182,43 +177,6 @@ const AddJobPage = () => {
                 value={companyDescription}
                 onChange={(e) => setCompanyDescription(e.target.value)}
               ></textarea>
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="contact_email"
-                className="block font-bold mb-2"
-              >
-                Contact Email
-                <FaStarOfLife className="text-[var(--red)] inline-block w-2 ml-1 mt-[-10px]" />
-              </label>
-              <input
-                type="email"
-                id="contact_email"
-                name="contact_email"
-                className="bg-[var(--hover)] rounded w-full py-2 px-3"
-                placeholder="Email address for applicants"
-                required
-                value={contactEmail}
-                onChange={(e) => setContactEmail(e.target.value)}
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                htmlFor="contact_phone"
-                className="block font-bold mb-2"
-              >
-                Contact Phone
-              </label>
-              <input
-                type="tel"
-                id="contact_phone"
-                name="contact_phone"
-                className="bg-[var(--hover)] rounded w-full py-2 px-3"
-                placeholder="Optional phone for applicants"
-                value={contactPhone}
-                onChange={(e) => setContactPhone(e.target.value)}
-              />
             </div>
 
             <div>

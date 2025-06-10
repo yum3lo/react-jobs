@@ -8,6 +8,7 @@ const { swaggerUi, specs } = require('./swagger');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { get } = require('http');
 
 const app = express();
 const PORT = process.env.PORT || 3500;
@@ -31,9 +32,9 @@ if (process.env.DATABASE_URL) {
 }
 
 // test the database connection
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('Database connection error:', err);
+pool.query('SELECT NOW()', (error, res) => {
+  if (error) {
+    next(error);
   } else {
     console.log('Database connected successfully');
     
@@ -43,7 +44,6 @@ pool.query('SELECT NOW()', (err, res) => {
       WHERE table_name='jobs' AND column_name='user_id'
     `).then(result => {
       if (result.rows.length === 0) {
-        console.log('Adding user_id column to jobs table...');
         return pool.query('ALTER TABLE jobs ADD COLUMN user_id INTEGER');
       }
     }).then(() => {
@@ -60,8 +60,8 @@ pool.query('SELECT NOW()', (err, res) => {
       });
     }).then(() => {
       console.log('Jobs table updated successfully');
-    }).catch(err => {
-      console.error('Error updating jobs table:', err);
+    }).catch(error => {
+      next(error);
     });
   }
 });
@@ -112,9 +112,9 @@ const authenticateToken = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: 'Access token required' });
   }
-  
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) {
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, user) => {
+    if (error) {
       return res.status(403).json({ message: 'Invalid or expired token' });
     }
     
@@ -128,6 +128,57 @@ const requireJobPoster = (req, res, next) => {
     return res.status(403).json({ message: 'Access denied. Only job posters can perform this action.' });
   }
   next();
+};
+
+const formatUserResponse = (user) => ({
+  id: user.id,
+  username: user.username,
+  role: user.role,
+  profileImageUrl: user.profile_image_url || null,
+  created_at: user.created_at
+});
+
+const formatJobResponse = (job) => ({
+  id: job.id,
+  title: job.title,
+  type: job.type,
+  description: job.description,
+  location: job.location,
+  salary: job.salary,
+  user_id: job.user_id,
+  company: {
+    name: job.company_name,
+    description: job.company_description
+  },
+  created_at: job.created_at
+});
+
+const runTransaction = async (callback) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await callback(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const getJobById = async (jobId) => {
+  const result = await pool.query('SELECT * FROM jobs WHERE id = $1', [jobId]);
+  return result.rows[0] || null;
+};
+
+const checkApplicationExists = async (jobId, userId) => {
+  const result = await pool.query(
+    'SELECT * FROM applications WHERE job_id = $1 AND user_id = $2',
+    [jobId, userId]
+  );
+  return result.rows[0] || null;
 };
 
 app.get('/', (req, res) => {
@@ -144,33 +195,21 @@ app.post('/login', async (req, res) => {
     );
     
     if (userResult.rows.length === 0) {
-      console.log('User not found');
       return res.status(401).json({ message: 'Invalid username or password' });
     }
     
     const hashedPassword = userResult.rows[0].password;
     const isPasswordValid = await bcrypt.compare(pwd, hashedPassword);
 
-    console.log('Password comparison result:', isPasswordValid);
-
     if (!isPasswordValid) {
-      console.log('Invalid password');
       return res.status(401).json({ message: 'Invalid username or password' });
     }
     
-    const userObj = {
-      id: userResult.rows[0].id,
-      username: userResult.rows[0].username,
-      role: userResult.rows[0].role
-    };
-    
+    const userObj = formatUserResponse(userResult.rows[0]);
     const accessToken = generateAccessToken(userObj);
     const refreshToken = generateRefreshToken(userObj);
     
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-      
+    await runTransaction(async (client) => {
       await client.query(
         'UPDATE users SET refresh_token = $1 WHERE id = $2',
         [refreshToken, userResult.rows[0].id]
@@ -182,18 +221,9 @@ app.post('/login', async (req, res) => {
       );
       
       if (!verifyUpdate.rows[0]?.refresh_token) {
-        console.error('Token update failed - still NULL after update');
         throw new Error('Failed to store refresh token');
       }
-      
-      await client.query('COMMIT');
-      console.log('Refresh token successfully stored for user:', userResult.rows[0].id);
-    } catch (tokenError) {
-      await client.query('ROLLBACK');
-      console.error('Transaction error:', tokenError);
-    } finally {
-      client.release();
-    }
+    });
 
     res.status(200).json({ 
       message: 'Login successful', 
@@ -201,9 +231,8 @@ app.post('/login', async (req, res) => {
       accessToken,
       refreshToken
     });
-  } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ message: 'Login failed' });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -233,19 +262,12 @@ app.post('/register', async (req, res) => {
       [user, hashedPassword, role]
     );
 
-    const userObj = {
-      id: result.rows[0].id,
-      username: result.rows[0].username,
-      role: result.rows[0].role
-    };
+    const userObj = formatUserResponse(result.rows[0]);
     
     const accessToken = generateAccessToken(userObj);
     const refreshToken = generateRefreshToken(userObj);
     
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-      
+    await runTransaction(async (client) => {
       await client.query(
         'UPDATE users SET refresh_token = $1 WHERE id = $2',
         [refreshToken, result.rows[0].id]
@@ -257,18 +279,9 @@ app.post('/register', async (req, res) => {
       );
       
       if (!verifyUpdate.rows[0]?.refresh_token) {
-        console.error('Token update failed during registration - still NULL after update');
         throw new Error('Failed to store refresh token');
       }
-      
-      await client.query('COMMIT');
-      console.log('Refresh token successfully stored during registration for user:', result.rows[0].id);
-    } catch (tokenError) {
-      await client.query('ROLLBACK');
-      console.error('Registration transaction error:', tokenError);
-    } finally {
-      client.release();
-    }
+    });
     
     res.status(200).json({ 
       message: 'Registration successful', 
@@ -276,9 +289,8 @@ app.post('/register', async (req, res) => {
       accessToken,
       refreshToken
     });
-  } catch (err) {
-    console.error('Registration error:', err);
-    res.status(500).json({ message: 'Registration failed' });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -301,17 +313,13 @@ app.post('/refresh-token', async (req, res) => {
       return res.status(403).json({ message: 'Invalid refresh token' });
     }
     
-    const userObj = {
-      id: result.rows[0].id,
-      username: result.rows[0].username
-    };
+    const userObj = formatUserResponse(result.rows[0]);
     
     const accessToken = generateAccessToken(userObj);
     
     res.json({ accessToken });
-  } catch (err) {
-    console.error('Token refresh error:', err);
-    res.status(403).json({ message: 'Invalid or expired refresh token' });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -329,9 +337,8 @@ app.post('/logout', async (req, res) => {
     );
     
     res.status(204).end();
-  } catch (err) {
-    console.error('Logout error:', err);
-    res.status(500).json({ message: 'Server error' });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -371,43 +378,24 @@ app.get('/jobs', async (req, res) => {
     }
     
     const result = await pool.query(query, params);
-    res.json({ jobs: result.rows });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch jobs' });
+    res.json({ jobs: result.rows.map(formatJobResponse) });
+  } catch (error) {
+    next(error);
   }
 });
 
-app.get('/jobs/:id', async (req, res) => {
+app.get('/jobs/:id', async (req, res, next) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM jobs WHERE id = $1',
-      [req.params.id]
-    );
+    const job = await getJobById(req.params.id);
     
-    if (result.rows.length === 0) {
+    if (!job) {
       return res.status(404).json({ error: 'Job not found' });
     }
     
-    const job = result.rows[0];
-    res.json({
-      id: job.id,
-      title: job.title,
-      type: job.type,
-      description: job.description,
-      location: job.location,
-      salary: job.salary,
-      user_id: job.user_id,
-      company: {
-        name: job.company_name,
-        description: job.company_description,
-        contactEmail: job.company_contact_email,
-        contactPhone: job.company_contact_phone
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch job' });
+    res.json(formatJobResponse(job));
+  } catch (error) {
+    error.message = `Failed to fetch job: ${error.message}`;
+    next(error);
   }
 });
 
@@ -427,7 +415,7 @@ app.post('/jobs', authenticateToken, requireJobPoster, async (req, res) => {
     const result = await pool.query(
       `INSERT INTO jobs (
         title, type, description, location, salary,
-        company_name, company_description, company_contact_email, company_contact_phone,
+        company_name, company_description,
         user_id
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
@@ -440,49 +428,42 @@ app.post('/jobs', authenticateToken, requireJobPoster, async (req, res) => {
         salary,
         company.name,
         company.description,
-        company.contactEmail,
-        company.contactPhone,
         userId
       ]
     );
     
     const newJob = result.rows[0];
-    res.status(201).json({
-      id: newJob.id,
-      title: newJob.title,
-      company: {
-        name: newJob.company_name,
-        description: newJob.company_description,
-        contactEmail: newJob.company_contact_email,
-        contactPhone: newJob.company_contact_phone
-      },
-      user_id: newJob.user_id
-    });
-  } catch (err) {
-    console.error('Error creating job:', err);
-    res.status(500).json({ error: 'Failed to create job', details: err.message });
+    res.status(201).json(formatJobResponse(newJob));
+  } catch (error) {
+    next(error);
   }
 });
 
-app.delete('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
+const checkJobOwnership = async (req, res, next) => {
   try {
-    const jobId = req.params.id;
+    const jobId = req.params.id || req.params.jobId;
     const userId = req.user.id;
     
-    const jobCheck = await pool.query(
-      'SELECT * FROM jobs WHERE id = $1',
-      [jobId]
-    );
+    const job = await getJobById(jobId);
     
-    if (jobCheck.rows.length === 0) {
+    if (!job) {
       return res.status(404).json({ error: 'Job not found' });
     }
     
-    // delete only if user owns the job or is an admin
-    if (jobCheck.rows[0].user_id !== userId) {
-      console.error(`Permission denied: User ${userId} tried to delete job ${jobId} owned by ${jobCheck.rows[0].user_id}`);
-      return res.status(403).json({ error: 'You do not have permission to delete this job listing' });
+    if (job.user_id !== userId) {
+      return res.status(403).json({ error: 'You do not have permission to access this job' });
     }
+
+    req.job = job;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+app.delete('/jobs/:id', authenticateToken, requireJobPoster, checkJobOwnership, async (req, res) => {
+  try {
+    const jobId = req.params.id;
     
     const result = await pool.query(
       'DELETE FROM jobs WHERE id = $1 RETURNING *',
@@ -493,12 +474,8 @@ app.delete('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) =>
       message: 'Job deleted successfully',
       id: result.rows[0].id
     });
-  } catch (err) {
-    console.error('Delete error:', err);
-    res.status(500).json({ 
-      error: 'Failed to delete job',
-      details: err.message
-    });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -507,18 +484,14 @@ app.put('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
     const jobId = req.params.id;
     const userId = req.user.id;
     
-    const jobCheck = await pool.query(
-      'SELECT * FROM jobs WHERE id = $1',
-      [jobId]
-    );
+    const job = await getJobById(jobId);
 
-    if (jobCheck.rows.length === 0) {
+    if (!job) {
       return res.status(404).json({ error: 'Job not found' });
     }
 
     // update only if user owns the job or is an admin
-    if (jobCheck.rows[0].user_id !== userId) {
-      console.error(`Permission denied: User ${userId} tried to update job ${jobId} owned by ${jobCheck.rows[0].user_id}`);
+    if (job.user_id !== userId) {
       return res.status(403).json({ error: 'You do not have permission to update this job listing' });
     }
     
@@ -539,9 +512,7 @@ app.put('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
         location = $4,
         salary = $5,
         company_name = $6,
-        company_description = $7,
-        company_contact_email = $8,
-        company_contact_phone = $9
+        company_description = $7
       WHERE id = $10
       RETURNING *`,
       [
@@ -552,30 +523,14 @@ app.put('/jobs/:id', authenticateToken, requireJobPoster, async (req, res) => {
         salary,
         company.name,
         company.description,
-        company.contactEmail,
-        company.contactPhone,
         jobId
       ]
     );
     
     const updatedJob = result.rows[0];
-    res.json({
-      id: updatedJob.id,
-      title: updatedJob.title,
-      company: {
-        name: updatedJob.company_name,
-        description: updatedJob.company_description,
-        contactEmail: updatedJob.company_contact_email,
-        contactPhone: updatedJob.company_contact_phone
-      },
-      user_id: updatedJob.user_id
-    });
-  } catch (err) {
-    console.error('Update error:', err);
-    res.status(500).json({ 
-      error: 'Failed to update job',
-      details: err.message
-    });
+    res.json(formatJobResponse(updatedJob));
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -594,7 +549,7 @@ app.put('/users/profile', authenticateToken, upload.single('profileImage'), asyn
     }
     
     const userResult = await pool.query(
-      'SELECT id, username, role, profile_image_url FROM users WHERE id = $1',
+      'SELECT id, username, role, profile_image_url, created_at FROM users WHERE id = $1',
       [userId]
     );
     
@@ -602,20 +557,267 @@ app.put('/users/profile', authenticateToken, upload.single('profileImage'), asyn
       return res.status(404).json({ message: 'User not found' });
     }
     
-    res.json({
-      id: userResult.rows[0].id,
-      username: userResult.rows[0].username,
-      role: userResult.rows[0].role,
-      profileImageUrl: userResult.rows[0].profile_image_url
-    });
+    res.json(formatUserResponse(userResult.rows[0]));
   } catch (error) {
-    console.error('Profile update error:', error);
-    res.status(500).json({ message: 'Failed to update profile', details: error.message });
+    next(error);
   }
 });
+
+app.delete('/users/profile/image', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    
+    const currentUserData = await pool.query(
+      'SELECT profile_image_url FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    if (currentUserData.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    const currentImageUrl = currentUserData.rows[0].profile_image_url;
+    
+    await pool.query(
+      'UPDATE users SET profile_image_url = NULL WHERE id = $1',
+      [userId]
+    );
+    
+    if (currentImageUrl) {
+      try {
+        const imagePath = currentImageUrl.split('/uploads/')[1];
+        if (imagePath) {
+          const fullPath = path.join(uploadsDir, imagePath);
+          if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+          }
+        }
+      } catch (fileError) {
+        console.error('Error deleting profile image file:', fileError);
+      }
+    }
+    
+    const userResult = await pool.query(
+      'SELECT id, username, role, profile_image_url, created_at FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    res.json(formatUserResponse(userResult.rows[0]));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// resume upload storage
+const resumeStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const resumeDir = path.join(__dirname, 'uploads/resumes');
+    if (!fs.existsSync(resumeDir)) {
+      fs.mkdirSync(resumeDir, { recursive: true });
+    }
+    cb(null, resumeDir);
+  },
+  filename: function(req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+const resumeUpload = multer({ 
+  storage: resumeStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['.pdf', '.doc', '.docx'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF, DOC, DOCX files are allowed'));
+    }
+  }
+});
+
+app.post('/jobs/:id/apply', authenticateToken, resumeUpload.single('resume'), async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const userId = req.user.id;
+    const { coverLetter } = req.body;
+    
+    if (req.user.role !== 'job_seeker') {
+      return res.status(403).json({ error: 'Only job seekers can apply for jobs' });
+    }
+
+    const job = await getJobById(jobId);
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    const existingApplication = await checkApplicationExists(jobId, userId);
+    if (existingApplication) {
+      return res.status(409).json({ error: 'You have already applied for this job' });
+    }
+    
+    let resumePath = null;
+    if (req.file) {
+      resumePath = `${req.protocol}://${req.get('host')}/uploads/resumes/${req.file.filename}`;
+    }
+    
+    const result = await pool.query(
+      'INSERT INTO applications (job_id, user_id, resume_path, cover_letter) VALUES ($1, $2, $3, $4) RETURNING *',
+      [jobId, userId, resumePath, coverLetter]
+    );
+    
+    res.status(201).json({
+      message: 'Application submitted successfully',
+      application: result.rows[0]
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/jobs/:id/applications', authenticateToken, async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const userId = req.user.id;
+    
+    const job = await getJobById(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    if (job.user_id !== userId) {
+      return res.status(403).json({ error: 'You do not have permission to view applications for this job' });
+    }
+    
+    const applications = await pool.query(`
+      SELECT a.*, u.username, u.profile_image_url, u.created_at as user_created_at
+      FROM applications a
+      JOIN users u ON a.user_id = u.id
+      WHERE a.job_id = $1
+      ORDER BY a.created_at DESC
+    `, [jobId]);
+    
+    res.json({ applications: applications.rows });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// approve/reject applications
+app.put('/jobs/:jobId/applications/:appId', authenticateToken, async (req, res) => {
+  try {
+    const { jobId, appId } = req.params;
+    const { status } = req.body; // 'approved' or 'rejected'
+    const userId = req.user.id;
+    
+    if (status !== 'approved' && status !== 'rejected') {
+      return res.status(400).json({ error: 'Invalid status. Must be "approved" or "rejected"' });
+    }
+    
+    const job = await getJobById(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    if (job.user_id !== userId) {
+      return res.status(403).json({ error: 'You do not have permission to update applications for this job' });
+    }
+    
+    const result = await pool.query(
+      'UPDATE applications SET status = $1 WHERE id = $2 AND job_id = $3 RETURNING *',
+      [status, appId, jobId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+    
+    res.json({
+      message: 'Application status updated successfully',
+      application: result.rows[0]
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// checking if user has applied to the job
+app.get('/jobs/:id/check-application', authenticateToken, async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const userId = req.user.id;
+    
+    const application = await checkApplicationExists(jobId, userId);
+
+    res.json({
+      hasApplied: !!application,
+      status: application? application.status : null
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/users/applications', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    
+    if (req.user.role !== 'job_seeker') {
+      return res.status(403).json({ error: 'Only job seekers can access this endpoint' });
+    }
+    
+    const applications = await pool.query(`
+      SELECT a.*, j.title as job_title, j.company_name
+      FROM applications a
+      JOIN jobs j ON a.job_id = j.id
+      WHERE a.user_id = $1
+      ORDER BY a.created_at DESC
+    `, [userId]);
+    
+    res.json({ applications: applications.rows });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/users/pending-applications', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    
+    if (req.user.role !== 'job_poster') {
+      return res.status(403).json({ error: 'Only job posters can access this endpoint' });
+    }
+    
+    const applications = await pool.query(`
+      SELECT a.*, j.title as job_title, j.id as job_id, u.username as applicant_name
+      FROM applications a
+      JOIN jobs j ON a.job_id = j.id
+      JOIN users u ON a.user_id = u.id
+      WHERE j.user_id = $1 AND (a.status = 'pending' OR a.status IS NULL)
+      ORDER BY a.created_at DESC
+    `, [userId]);
+    
+    res.json({ applications: applications.rows });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.use('/uploads/resumes', express.static(path.join(__dirname, 'uploads/resumes')));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// error handling middleware from express
+app.use((err, req, res, next) => {
+  console.error('API Error:', err);
+  res.status(err.status || 500).json({ 
+    error: err.message || 'Server error',
+    details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 });

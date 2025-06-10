@@ -12,7 +12,6 @@ const fetchJobById = async (id) => {
     }
     return await res.json();
   } catch (error) {
-    console.error("Error fetching job:", error);
     throw error;
   }
 };
@@ -59,7 +58,6 @@ export const JobProvider = ({ children }) => {
       setJobs(receivedJobs);
       return receivedJobs;
     } catch (error) {
-      console.error("Error fetching jobs:", error);
       setError(error.message);
       setJobs([]);
       return [];
@@ -87,7 +85,6 @@ export const JobProvider = ({ children }) => {
       refreshJobData();
       return await res.json();
     } catch (error) {
-      console.error('Error creating job:', error);
       throw error;
     }
   };
@@ -107,7 +104,6 @@ export const JobProvider = ({ children }) => {
       refreshJobData();
       return await response.json();
     } catch (error) {
-      console.error('Error updating job:', error);
       throw error;
     }
   };
@@ -120,14 +116,12 @@ export const JobProvider = ({ children }) => {
       
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
-        console.error('Delete job response:', { status: res.status, statusText: res.statusText, data: errorData });
         throw new Error(errorData.error || `Failed to delete job (${res.status})`);
       }
       
       refreshJobData();
       return await res.json();
     } catch (error) {
-      console.error('Delete job error:', error);
       throw error;
     }
   };
@@ -151,8 +145,7 @@ export const JobProvider = ({ children }) => {
       const userJobs = data.jobs || [];
       return userJobs;
     } catch (error) {
-      console.error('Error fetching user jobs:', error);
-      return [];
+      throw error;
     } finally {
       setLoading(false);
     }

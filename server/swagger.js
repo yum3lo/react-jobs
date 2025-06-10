@@ -9,6 +9,7 @@ const options = {
       description: 'API for the React Jobs application that manages job listings and user authentication',
       version: '1.0.0',
     },
+
     servers: [
       {
         url: "https://react-jobs-api-rutx.onrender.com",
@@ -19,6 +20,7 @@ const options = {
         description: "Development server"
       }
     ],
+
     tags: [
       {
         name: "Authentication",
@@ -27,8 +29,17 @@ const options = {
       {
         name: "Jobs",
         description: "Job listing operations"
+      },
+      {
+        name: "Users",
+        description: "User profile operations"
+      },
+      {
+        name: "Applications",
+        description: "Job application operations"
       }
     ],
+
     components: {
       securitySchemes: {
         BearerAuth: {
@@ -37,6 +48,7 @@ const options = {
           bearerFormat: "JWT"
         }
       },
+
       schemas: {
         User: {
           type: "object",
@@ -59,6 +71,7 @@ const options = {
             }
           }
         },
+
         Job: {
           type: "object",
           properties: {
@@ -106,19 +119,12 @@ const options = {
                 description: {
                   type: "string",
                   example: "A leading technology company..."
-                },
-                contactEmail: {
-                  type: "string",
-                  example: "jobs@techsolutions.com"
-                },
-                contactPhone: {
-                  type: "string",
-                  example: "(123) 456-7890"
                 }
               }
             }
           }
         },
+
         NewJob: {
           type: "object",
           properties: {
@@ -152,14 +158,6 @@ const options = {
                 description: {
                   type: "string",
                   example: "A leading technology company..."
-                },
-                contactEmail: {
-                  type: "string",
-                  example: "jobs@techsolutions.com"
-                },
-                contactPhone: {
-                  type: "string",
-                  example: "(123) 456-7890"
                 }
               }
             }
@@ -172,6 +170,185 @@ const options = {
             "company"
           ]
         },
+
+        Application: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              example: 1
+            },
+            job_id: {
+              type: "integer",
+              example: 1
+            },
+            user_id: {
+              type: "integer",
+              example: 2
+            },
+            resume_path: {
+              type: "string",
+              nullable: true,
+              example: "http://localhost:3500/uploads/resumes/1623456789-resume.pdf"
+            },
+            cover_letter: {
+              type: "string",
+              example: "I am very interested in this position..."
+            },
+            status: {
+              type: "string",
+              enum: ["pending", "approved", "rejected"],
+              example: "pending"
+            },
+            created_at: {
+              type: "string",
+              format: "date-time",
+              example: "2025-06-01T12:00:00Z"
+            }
+          }
+        },
+
+        ApplicationWithUser: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              example: 1
+            },
+            job_id: {
+              type: "integer",
+              example: 1
+            },
+            user_id: {
+              type: "integer",
+              example: 2
+            },
+            resume_path: {
+              type: "string",
+              nullable: true,
+              example: "http://localhost:3500/uploads/resumes/1623456789-resume.pdf"
+            },
+            cover_letter: {
+              type: "string",
+              example: "I am very interested in this position..."
+            },
+            status: {
+              type: "string",
+              enum: ["pending", "approved", "rejected"],
+              example: "pending"
+            },
+            created_at: {
+              type: "string",
+              format: "date-time",
+              example: "2025-06-01T12:00:00Z"
+            },
+            username: {
+              type: "string",
+              example: "jane_smith"
+            },
+            profile_image_url: {
+              type: "string",
+              nullable: true,
+              example: "http://localhost:3500/uploads/1623456789-profile.jpg"
+            },
+            user_created_at: {
+              type: "string",
+              format: "date-time",
+              example: "2025-05-01T12:00:00Z"
+            }
+          }
+        },
+
+        JobApplication: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              example: 1
+            },
+            job_id: {
+              type: "integer",
+              example: 1
+            },
+            user_id: {
+              type: "integer",
+              example: 2
+            },
+            resume_path: {
+              type: "string",
+              nullable: true,
+              example: "http://localhost:3500/uploads/resumes/1623456789-resume.pdf"
+            },
+            cover_letter: {
+              type: "string",
+              example: "I am very interested in this position..."
+            },
+            status: {
+              type: "string",
+              enum: ["pending", "approved", "rejected"],
+              example: "pending"
+            },
+            created_at: {
+              type: "string",
+              format: "date-time",
+              example: "2025-06-01T12:00:00Z"
+            },
+            job_title: {
+              type: "string",
+              example: "Senior React Developer"
+            },
+            company_name: {
+              type: "string",
+              example: "Tech Solutions Inc."
+            }
+          }
+        },
+
+        PendingApplication: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              example: 1
+            },
+            job_id: {
+              type: "integer",
+              example: 1
+            },
+            user_id: {
+              type: "integer",
+              example: 2
+            },
+            resume_path: {
+              type: "string",
+              nullable: true,
+              example: "http://localhost:3500/uploads/resumes/1623456789-resume.pdf"
+            },
+            cover_letter: {
+              type: "string",
+              example: "I am very interested in this position..."
+            },
+            status: {
+              type: "string",
+              enum: ["pending", "approved", "rejected"],
+              example: "pending"
+            },
+            created_at: {
+              type: "string",
+              format: "date-time",
+              example: "2025-06-01T12:00:00Z"
+            },
+            job_title: {
+              type: "string", 
+              example: "Senior React Developer"
+            },
+            applicant_name: {
+              type: "string",
+              example: "jane_smith"
+            }
+          }
+        },
+
         Error: {
           type: "object",
           properties: {
@@ -971,6 +1148,364 @@ const options = {
                 }
               }
             }
+          }
+        }
+      },
+      "/users/profile": {
+        put: {
+          summary: "Update user profile",
+          description: "Updates user profile information including profile image upload",
+          tags: ["Users"],
+          security: [{ BearerAuth: [] }],
+          requestBody: {
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    profileImage: {
+                      type: "string",
+                      format: "binary",
+                      description: "Profile image file"
+                    }
+                  }
+                }
+              }
+            },
+            responses: {
+              200: {
+                description: "Profile updated successfully",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        id: { type: "integer" },
+                        username: { type: "string" },
+                        role: { type: "string" },
+                        profileImageUrl: { 
+                          type: "string",
+                          nullable: true
+                        },
+                        created_at: { type: "string", format: "date-time" }
+                      }
+                    }
+                  }
+                }
+              },
+              401: { $ref: "#/components/responses/UnauthorizedError" },
+              404: { description: "User not found" },
+              500: { $ref: "#/components/responses/ServerError" }
+            }
+          }
+        }
+      },
+
+      "/users/profile/image": {
+        delete: {
+          summary: "Delete profile image",
+          description: "Removes the user's profile image",
+          tags: ["Users"],
+          security: [{ BearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Profile image deleted successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "integer" },
+                      username: { type: "string" },
+                      role: { type: "string" },
+                      profileImageUrl: { 
+                        type: "string",
+                        nullable: true
+                      },
+                      created_at: { type: "string", format: "date-time" }
+                    }
+                  }
+                }
+              }
+            },
+            401: { $ref: "#/components/responses/UnauthorizedError" },
+            404: { description: "User not found" },
+            500: { $ref: "#/components/responses/ServerError" }
+          }
+        }
+      },
+
+      "/jobs/{id}/apply": {
+        post: {
+          summary: "Apply for a job",
+          description: "Submit a job application with resume and cover letter",
+          tags: ["Applications"],
+          security: [{ BearerAuth: [] }],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: { type: "integer" },
+              description: "Job ID"
+            }
+          ],
+          requestBody: {
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    resume: {
+                      type: "string",
+                      format: "binary",
+                      description: "Resume file (PDF, DOC, DOCX)"
+                    },
+                    coverLetter: {
+                      type: "string",
+                      description: "Cover letter text"
+                    }
+                  }
+                }
+              }
+            },
+            responses: {
+              201: {
+                description: "Application submitted successfully",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        message: { type: "string" },
+                        application: { $ref: "#/components/schemas/Application" }
+                      }
+                    }
+                  }
+                }
+              },
+              401: { $ref: "#/components/responses/UnauthorizedError" },
+              403: { 
+                description: "Forbidden - only job seekers can apply", 
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        error: { type: "string" }
+                      }
+                    }
+                  }
+                }
+              },
+              404: { description: "Job not found" },
+              409: { description: "Already applied to this job" },
+              500: { $ref: "#/components/responses/ServerError" }
+            }
+          }
+        }
+      },
+
+      "/jobs/{id}/applications": {
+        get: {
+          summary: "Get job applications",
+          description: "Retrieves all applications for a specific job (requires job ownership)",
+          tags: ["Applications"],
+          security: [{ BearerAuth: [] }],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: { type: "integer" },
+              description: "Job ID"
+            }
+          ],
+          responses: {
+            200: {
+              description: "List of applications",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      applications: {
+                        type: "array",
+                        items: { $ref: "#/components/schemas/ApplicationWithUser" }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            401: { $ref: "#/components/responses/UnauthorizedError" },
+            403: { description: "Forbidden - not the job owner" },
+            404: { description: "Job not found" },
+            500: { $ref: "#/components/responses/ServerError" }
+          }
+        }
+      },
+
+      "/jobs/{jobId}/applications/{appId}": {
+        put: {
+          summary: "Update application status",
+          description: "Approve or reject a job application",
+          tags: ["Applications"],
+          security: [{ BearerAuth: [] }],
+          parameters: [
+            {
+              in: "path",
+              name: "jobId",
+              required: true,
+              schema: { type: "integer" },
+              description: "Job ID"
+            },
+            {
+              in: "path",
+              name: "appId",
+              required: true,
+              schema: { type: "integer" },
+              description: "Application ID"
+            }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      enum: ["approved", "rejected"],
+                      description: "New application status"
+                    }
+                  },
+                  required: ["status"]
+                }
+              }
+            },
+            responses: {
+              200: {
+                description: "Application status updated successfully",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        message: { type: "string" },
+                        application: { $ref: "#/components/schemas/Application" }
+                      }
+                    }
+                  }
+                }
+              },
+              400: { description: "Invalid status value" },
+              401: { $ref: "#/components/responses/UnauthorizedError" },
+              403: { description: "Forbidden - not the job owner" },
+              404: { description: "Job or application not found" },
+              500: { $ref: "#/components/responses/ServerError" }
+            }
+          }
+        }
+      },
+
+      "/jobs/{id}/check-application": {
+        get: {
+          summary: "Check application status",
+          description: "Checks if the current user has applied to a job",
+          tags: ["Applications"],
+          security: [{ BearerAuth: [] }],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: { type: "integer" },
+              description: "Job ID"
+            }
+          ],
+          responses: {
+            200: {
+              description: "Application status",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      hasApplied: { type: "boolean" },
+                      status: { 
+                        type: "string",
+                        nullable: true,
+                        enum: ["pending", "approved", "rejected"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            401: { $ref: "#/components/responses/UnauthorizedError" },
+            500: { $ref: "#/components/responses/ServerError" }
+          }
+        }
+      },
+
+      "/users/applications": {
+        get: {
+          summary: "Get user applications",
+          description: "Retrieves all applications submitted by the current job seeker",
+          tags: ["Applications"],
+          security: [{ BearerAuth: [] }],
+          responses: {
+            200: {
+              description: "List of user's job applications",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      applications: {
+                        type: "array",
+                        items: { $ref: "#/components/schemas/JobApplication" }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            401: { $ref: "#/components/responses/UnauthorizedError" },
+            403: { description: "Forbidden - only job seekers can access" },
+            500: { $ref: "#/components/responses/ServerError" }
+          }
+        }
+      },
+
+      "/users/pending-applications": {
+        get: {
+          summary: "Get pending applications",
+          description: "Retrieves all pending applications for jobs posted by the current job poster",
+          tags: ["Applications"],
+          security: [{ BearerAuth: [] }],
+          responses: {
+            200: {
+              description: "List of pending applications",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      applications: {
+                        type: "array",
+                        items: { $ref: "#/components/schemas/PendingApplication" }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            401: { $ref: "#/components/responses/UnauthorizedError" },
+            403: { description: "Forbidden - only job posters can access" },
+            500: { $ref: "#/components/responses/ServerError" }
           }
         }
       }
